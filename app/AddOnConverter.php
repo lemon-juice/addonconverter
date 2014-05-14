@@ -1,13 +1,19 @@
 <?php
 class AddOnConverter {
 	
+	// config:
 	public $maxVersionStr = '2.*';
-	public $convertChromeURLs = false;
-
+	
+	/**
+	 * List of file extensions, in which to replace chrome URL's
+	 */
+	public $convertChromeURLsInExt = array();
+	// end config.
 
 	protected $sourceFile;
 	protected $extractDir;
 	protected $logMessages = array();
+	protected $chromeURLReplacements;
 
 	/**
 	 * @var DOMDocument
@@ -39,18 +45,26 @@ class AddOnConverter {
 		if (!$result) {
 			throw new Exception("Cannot parse install.rdf as XML");
 		}
+		
+		$this->chromeURLReplacements = array(
+			'chrome://browser/content/browser.xul' => 'chrome://navigator/content/navigator.xul',
+			'chrome://browser/content/pageinfo/pageInfo.xul' => 'chrome://navigator/content/pageinfo/pageInfo.xul',
+			'chrome://browser/content/preferences/permissions.xul' => 'chrome://communicator/content/permissions/permissionsManager.xul',
+			'chrome://browser/content/bookmarks/bookmarksPanel.xul' => 'chrome://communicator/content/bookmarks/bm-panel.xul',
+			'chrome://browser/content/places/places.xul' => 'chrome://communicator/content/bookmarks/bookmarksManager.xul',
+			'chrome://browser/content/' => 'chrome://navigator/content/',
+		);
 	}
 	
 	/**
 	 * @param string $destDir
-	 * @param string 
 	 * @return string|NULL URL path to converted file for download or NULL
 	 *    if no conversion was done
 	 */
-	public function convert($destDir, $maxVersionStr) {
+	public function convert($destDir) {
 		$modified = false;
 		
-		$newInstallRdf = $this->convertInstallRdf($this->installRdf, $maxVersionStr);
+		$newInstallRdf = $this->convertInstallRdf($this->installRdf, $this->maxVersionStr);
 		
 		if ($newInstallRdf) {
 			// write modified file
@@ -61,6 +75,12 @@ class AddOnConverter {
 		
 		
 		$filesConverted = $this->convertManifest('chrome.manifest');
+
+		if ($filesConverted > 0) {
+			$modified = true;
+		}
+		
+		$filesConverted = $this->replaceChromeURLs($this->convertChromeURLsInExt);
 
 		if ($filesConverted > 0) {
 			$modified = true;
@@ -231,15 +251,7 @@ class AddOnConverter {
 	 * @retutn string
 	 */
 	private function createNewManifestLine($originalLine) {
-		$replacements = array(
-			'chrome://browser/content/browser.xul' => 'chrome://navigator/content/navigator.xul',
-			'chrome://browser/content/pageinfo/pageInfo.xul' => 'chrome://navigator/content/pageinfo/pageInfo.xul',
-			'chrome://browser/content/preferences/permissions.xul' => 'chrome://communicator/content/permissions/permissionsManager.xul',
-			'chrome://browser/content/bookmarks/bookmarksPanel.xul' => 'chrome://communicator/content/bookmarks/bm-panel.xul',
-			'chrome://browser/content/places/places.xul' => 'chrome://communicator/content/bookmarks/bookmarksManager.xul',
-		);
-		
-		$convertedLine = strtr($originalLine, $replacements);
+		$convertedLine = strtr($originalLine, $this->chromeURLReplacements);
 		
 		if ($convertedLine != $originalLine) {
 			return $convertedLine;
@@ -393,5 +405,42 @@ class AddOnConverter {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Replace chrome:// URLs in all file with given extensions.
+	 * 
+	 * @param array $extensions
+	 * @return int number of changed files
+	 */
+	protected function replaceChromeURLs(array $extensions) {
+		if (!$extensions) {
+			return 0;
+		}
+		
+		$changedCount = 0;
+		$dirLen = strlen($this->extractDir);
+		
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($this->extractDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+
+		foreach ($iterator as $pathInfo) {
+			if ($pathInfo->isFile() && in_array(strtolower($pathInfo->getExtension()), $extensions) && $pathInfo->getFilename() != 'install.rdf') {
+				$contents = file_get_contents((string) $pathInfo);
+				$newContents = strtr($contents, $this->chromeURLReplacements);
+				
+				if ($contents !== $newContents) {
+					file_put_contents((string) $pathInfo, $newContents);
+					
+					$localname = substr($pathInfo->__toString(), $dirLen + 1);
+					
+					$this->log("$localname: replaced chrome: URL's to those used in SeaMonkey");
+					$changedCount++;
+				}
+			}
+		}
+		
+		return $changedCount;
 	}
 }

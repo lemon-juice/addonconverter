@@ -32,7 +32,16 @@ try {
 	
 	
 	$conv = new AddOnConverter($tmpFile);
-	$destFile = $conv->convert($tmpDestDir, $_POST['maxVersion']);
+	$conv->maxVersionStr = $_POST['maxVersion'];
+	$conv->convertChromeURLsInExt = array(
+		'xul',
+		'rdf',
+		'js',
+		'xml',
+		'html',
+		'xhtml',
+	);
+	$destFile = $conv->convert($tmpDestDir);
 	
 	$result = $conv->getLogMessages();
 	
