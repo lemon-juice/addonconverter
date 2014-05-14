@@ -6,7 +6,7 @@ try {
 		throw new Exception("No file to upload");
 	}
 	
-	$tmpDir = "tmp/upload/" . uniqid();
+	$tmpDir = "tmp/convert/" . uniqid();
 	mkdir($tmpDir);
 	
 	$tmpSourceDir = "$tmpDir/source";
@@ -23,7 +23,10 @@ try {
 	
 	
 	$conv = new AddOnConverter($tmpFile);
-	$conv->convert($tmpDestDir);
+	$destFile = $conv->convert($tmpDestDir, $_POST['maxVersion']);
+	
+	$result = $conv->getLogMessages();
+	
 	
 	
 } catch (Exception $ex) {
@@ -34,4 +37,25 @@ try {
 
 ?>
 
-convert
+<? include "templates/header.php" ?>
+
+<h1>Conversion Result</h1>
+
+<? if ($destFile): ?>
+	<ol>
+		<? foreach ($result as $msg): ?>
+		<li><?=$msg ?></li>
+		<? endforeach ?>
+	</ol>
+
+	<h2>Your converted add-on is available for download here:</h2>
+	<p>
+		<a href="<?=htmlspecialchars($destFile) ?>"><?=htmlspecialchars(basename($destFile)) ?></a>
+	</p>
+
+
+<? else: ?>
+	<p>I didn't find anything to convert in this add-on.</p>
+<? endif ?>
+
+<? include "templates/footer.php" ?>
