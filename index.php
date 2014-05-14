@@ -11,11 +11,16 @@
 
 <form action="convert.php" method="post" enctype="multipart/form-data">
 	<div>
-		Select add-on installer file (with <em>.xpi</em> filename extension):
+		Upload add-on installer file (with <em>.xpi</em> filename extension):
 		<input type="file" name="xpi" />
 	</div>
 	<div>
+		or paste URL of add-on page at addons.mozilla.org:
+		<input type="text" name="url" size="70" maxlength="250" />
+	</div>
+	<div>
 		maxVersion: <input type="text" name="maxVersion" value="2.*" size="7" maxlength="7" />
+	</div>
 	<div>
 		<input type="submit" value="Convert!" />
 	</div>

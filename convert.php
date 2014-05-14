@@ -2,11 +2,15 @@
 require "app/Init.php";
 
 try {
-	if (empty($_FILES) || empty($_FILES['xpi']['name'])) {
+	$amoURL = isset($_POST['url']) ? trim($_POST['url']) : null;
+	
+	$uploadFileName = (empty($_FILES) || empty($_FILES['xpi']['name'])) ? '' : $_FILES['xpi']['name'];
+	
+	if (!$uploadFileName && !$amoURL) {
 		throw new Exception("No file to upload");
 	}
 	
-	$tmpDir = "tmp/convert/" . uniqid();
+	$tmpDir = "tmp/convert/" . uniqid("", true);
 	mkdir($tmpDir);
 	
 	$tmpSourceDir = "$tmpDir/source";
@@ -15,10 +19,15 @@ try {
 	mkdir($tmpSourceDir);
 	mkdir($tmpDestDir);
 	
-	$tmpFile = "$tmpSourceDir/" .$_FILES['xpi']['name'];
+	$tmpFile = "$tmpSourceDir/$uploadFileName";
 	
-	if (!@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
+	
+	if ($uploadFileName && !@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
 		throw new Exception("Error moving file to temporary folder");
+		
+	} elseif ($amoURL) {
+		$ag = new AMOGrabber;
+		$tmpFile = $ag->fetch($amoURL, $tmpSourceDir);
 	}
 	
 	

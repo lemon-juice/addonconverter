@@ -64,9 +64,17 @@ class AddOnConverter {
 		if ($newInstallRdf) {
 			// write modified file
 			file_put_contents($this->extractDir ."/install.rdf", $newInstallRdf->saveXML());
+			unset($newInstallRdf);
 			$modified = true;
 		}
 		
+		
+		$filesConverted = $this->convertManifest('chrome.manifest');
+
+		if ($filesConverted > 0) {
+			$modified = true;
+		}
+
 		if ($modified) {
 			// ZIP files
 			$filename = $this->createNewFileName($this->sourceFile);
@@ -168,6 +176,87 @@ class AddOnConverter {
 		return $docChanged ? $installRdf : null;
 	}
 	
+	/**
+	 * Convert chrome.manifest and any included manifest files
+	 * 
+	 * @return int number of converted files
+	 */
+	protected function convertManifest($manifestFileName) {
+		$manifestFile = $this->extractDir ."/$manifestFileName";
+		
+		if (!is_file($manifestFile)) {
+			return 0;
+		}
+		
+		$convertedFilesCount = 0;
+		$isConverted = false;
+		$newManifest = "";
+		
+		$fp = fopen($manifestFile, "rb");
+		
+		while (($line = fgets($fp, 4096)) !== false) {
+			$trimLine = trim($line);
+			$newLine = "";
+			
+			if ($trimLine && $trimLine[0] != '#') {
+				$segm = preg_split('/\s+/', $trimLine);
+
+				switch ($segm[0]) {
+					case 'manifest':
+						// included another manifest
+						$file = ltrim($segm[1], './\\');
+						$convertedFilesCount += $this->convertManifest($file);
+						break;;
+
+					case 'overlay':
+					case 'override':
+						$newLine = $this->createNewManifestLine($trimLine);
+						break;
+				}
+			}
+			
+			$newManifest .= $line;
+
+			if ($newLine) {
+				$newManifest .= $newLine;
+				$this->log("Added new line to $manifestFileName: '$newLine'");
+				$isConverted = true;
+			}
+		}
+		
+		if ($isConverted) {
+			file_put_contents($manifestFile, $newManifest);
+			$convertedFilesCount++;
+		}
+		
+		return $convertedFilesCount;
+	}
+	
+	/**
+	 * Take existing manifest line and if it contants firefox-specific data
+	 * then return new seamonkey-specific line. Otherwise, return empty string.
+	 * 
+	 * @param string $originalLine
+	 * @retutn string
+	 */
+	private function createNewManifestLine($originalLine) {
+		$replacements = array(
+			'chrome://browser/content/browser.xul' => 'chrome://navigator/content/navigator.xul',
+			'chrome://browser/content/pageinfo/pageInfo.xul' => 'chrome://navigator/content/pageinfo/pageInfo.xul',
+			'chrome://browser/content/preferences/permissions.xul' => 'chrome://communicator/content/permissions/permissionsManager.xul',
+			'chrome://browser/content/bookmarks/bookmarksPanel.xul' => 'chrome://communicator/content/bookmarks/bm-panel.xul',
+			'chrome://browser/content/places/places.xul' => 'chrome://communicator/content/bookmarks/bookmarksManager.xul',
+		);
+		
+		$convertedLine = strtr($originalLine, $replacements);
+		
+		if ($convertedLine != $originalLine) {
+			return $convertedLine;
+		} else {
+			return '';
+		}
+	}
+
 	protected function log($msg) {
 		$this->logMessages[] = $msg;
 	}
@@ -199,7 +288,7 @@ class AddOnConverter {
 		}
 		
 		$iterator = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		$dirLen = strlen($dir);
