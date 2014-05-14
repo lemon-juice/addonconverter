@@ -1,10 +1,13 @@
 <?php
 class AddOnConverter {
 	
+	public $maxVersionStr = '2.*';
+	public $convertChromeURLs = false;
+
+
 	protected $sourceFile;
 	protected $extractDir;
 	protected $logMessages = array();
-
 
 	/**
 	 * @var DOMDocument
@@ -21,20 +24,8 @@ class AddOnConverter {
 	public function __construct($sourceFile) {
 		$this->sourceFile = $sourceFile;
 		
-		$zip = new ZipArchive;
-		$result = $zip->open($sourceFile);
-
-		if ($result !== true) {
-			throw new Exception("Cannot read the XPI file");
-		}
-
 		$this->extractDir = dirname($sourceFile) . "/extracted";
-		mkdir($this->extractDir);
-
-		if (!$zip->extractTo($this->extractDir)) {
-			throw new Exception("Cannot extract archive");
-		}
-		$zip->close();
+		$this->extractXPI($sourceFile, $this->extractDir);
 		
 		if (!is_file($this->extractDir ."/install.rdf")) {
 			throw new Exception("install.rdf not found in installer");
@@ -52,7 +43,7 @@ class AddOnConverter {
 	
 	/**
 	 * @param string $destDir
-	 * @param string $maxVersionStr
+	 * @param string 
 	 * @return string|NULL URL path to converted file for download or NULL
 	 *    if no conversion was done
 	 */
@@ -273,15 +264,62 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * ZIP all directory with files and folders
+	 * @param string $archiveFile
+	 * @param string $extractDir
+	 * @throws Exception
+	 */
+	protected function extractXPI($archiveFile, $extractDir) {
+		$zip = new ZipArchive;
+		$result = $zip->open($archiveFile);
+
+		if ($result !== true) {
+			throw new Exception("Cannot read the XPI file");
+		}
+
+		if (!is_dir($extractDir)) {
+			mkdir($extractDir);
+		}
+
+		if (!$zip->extractTo($extractDir)) {
+			throw new Exception("Cannot extract archive");
+		}
+		$zip->close();
+		
+		$this->extractJARs($extractDir);
+	}
+	
+	/**
+	 * Extract XPI archive and extract all JAR files inside
+	 * @param type $dir
+	 */
+	protected function extractJARs($dir) {
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST);
+
+		foreach ($iterator as $pathInfo) {
+			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jar') {
+				$zip = new ZipArchive;
+				$zip->open($pathInfo->__toString());
+				$zip->extractTo($pathInfo->getPath());
+				$zip->close();
+			}
+		}
+	}
+	
+	/**
+	 * ZIP all directory with files and folders. Compress appropriate folders
+	 * to JARs.
 	 * @param string $dir
 	 * @param string $destFile
 	 * @throws Exception
 	 */
 	protected function zipDir($dir, $destFile) {
 		
+		$this->zipJars($dir);
+		
 		$zip = new ZipArchive;
-		$res = $zip->open($destFile, ZIPARCHIVE::CREATE);
+		$res = $zip->open($destFile, ZipArchive::CREATE);
 		
 		if (!$res) {
 			throw new Exception("Cannot open ZipArchive");
@@ -304,5 +342,56 @@ class AddOnConverter {
 		}
 		
 		$zip->close();
+	}
+	
+	protected function zipJars($dir) {
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+
+		foreach ($iterator as $pathInfo) {
+			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jar') {
+				$jarFile = $pathInfo->__toString();
+				
+				// zip all files and folders in this dir except for the jar
+				$path = $pathInfo->getPath();
+				unlink($jarFile);
+				
+				$zip = new ZipArchive;
+				$zip->open($jarFile, ZipArchive::CREATE);
+				
+				$iterator = new RecursiveIteratorIterator(
+					new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+					RecursiveIteratorIterator::SELF_FIRST);
+
+				$dirLen = strlen($path);
+
+				foreach ($iterator as $pathInfo) {
+					$localname = substr($pathInfo->__toString(), $dirLen + 1);
+
+					if ($pathInfo->isDir()) {
+						$zip->addEmptyDir($localname);
+					} else {
+						$zip->addFile($pathInfo->__toString(), $localname);
+					}
+				}
+				
+				$zip->close();
+				
+				// delete jar'ed files recursively
+				$iterator = new RecursiveIteratorIterator(
+					new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+					RecursiveIteratorIterator::CHILD_FIRST);
+				
+				foreach ($iterator as $filename => $fileInfo) {
+					if ($fileInfo->isDir()) {
+						rmdir($filename);
+					
+					} elseif ($filename != $jarFile) {
+						unlink($filename);
+					}
+				}
+			}
+		}
 	}
 }
