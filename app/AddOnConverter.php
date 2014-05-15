@@ -8,6 +8,8 @@ class AddOnConverter {
 	 * List of file extensions, in which to replace chrome URL's
 	 */
 	public $convertChromeURLsInExt = array();
+	
+	public $jsShortcuts = false;
 	// end config.
 
 	protected $sourceFile;
@@ -85,7 +87,15 @@ class AddOnConverter {
 		if ($filesConverted > 0) {
 			$modified = true;
 		}
+		
+		if ($this->jsShortcuts) {
+			$filesConverted = $this->fixJsShortcuts();
+		}
 
+		if ($filesConverted > 0) {
+			$modified = true;
+		}
+		
 		if ($modified) {
 			// ZIP files
 			$filename = $this->createNewFileName($this->sourceFile);
@@ -442,5 +452,65 @@ class AddOnConverter {
 		}
 		
 		return $changedCount;
+	}
+	
+	/**
+	 * Fix Firefox shortcuts in js files
+	 * @return int number of changed files
+	 */
+	protected function fixJsShortcuts() {
+		$changedCount = 0;
+		$dirLen = strlen($this->extractDir);
+		
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($this->extractDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+
+		foreach ($iterator as $pathInfo) {
+			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension() == 'js')) {
+				$contents = file_get_contents((string) $pathInfo);
+				$newContents = $this->addJsShortcutConstants($contents);
+				
+				if ($contents !== $newContents) {
+					file_put_contents((string) $pathInfo, $newContents);
+					
+					$localname = substr($pathInfo->__toString(), $dirLen + 1);
+					
+					$this->log("$localname: added definitions for javascript shortcuts, which are not available in SeaMonkey");
+					$changedCount++;
+				}
+			}
+		}
+		
+		return $changedCount;
+	}
+	
+	/**
+	 * @param string $contents
+	 * @return string contents with prepended definitions
+	 */
+	protected function addJsShortcutConstants($contents) {
+		$shortcuts = array(
+			'Cc' => 'Components.classes',
+			'Ci' => 'Components.interfaces',
+			'Cr' => 'Components.results',
+			'Cu' => 'Components.utils',
+		);
+		
+		// detect which shortcuts are used
+		$set = implode('|', array_keys($shortcuts));
+		
+		preg_match_all('/\b(?:' .$set. ')\b/', $contents, $matches);
+		$found = array_unique($matches[0]);
+		
+		$definitions = "";
+		
+		foreach ($found as $shortcut) {
+			$definitions .= "if (typeof $shortcut == 'undefined') {\n"
+				. "  var $shortcut = " .$shortcuts[$shortcut]. ";\n"
+				. "}\n\n";
+		}
+		
+		return $definitions . $contents;
 	}
 }

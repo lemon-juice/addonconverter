@@ -22,8 +22,10 @@ try {
 	$tmpFile = "$tmpSourceDir/$uploadFileName";
 	
 	
-	if ($uploadFileName && !@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
-		throw new Exception("Error moving file to temporary folder");
+	if ($uploadFileName) {
+		if (!@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
+			throw new Exception("Error moving file to temporary folder");
+		}
 		
 	} elseif ($amoURL) {
 		$ag = new AMOGrabber;
@@ -41,10 +43,10 @@ try {
 		'html',
 		'xhtml',
 	);
+	$conv->jsShortcuts = true;
+	
 	$destFile = $conv->convert($tmpDestDir);
-	
 	$result = $conv->getLogMessages();
-	
 	
 	
 } catch (Exception $ex) {
