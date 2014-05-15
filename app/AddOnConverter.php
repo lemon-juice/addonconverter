@@ -264,7 +264,7 @@ class AddOnConverter {
 		$convertedLine = strtr($originalLine, $this->chromeURLReplacements);
 		
 		if ($convertedLine != $originalLine) {
-			return $convertedLine;
+			return $convertedLine ."\n";
 		} else {
 			return '';
 		}
@@ -506,6 +506,12 @@ class AddOnConverter {
 		$definitions = "";
 		
 		foreach ($found as $shortcut) {
+			
+			if (preg_match('/\bconst[ \t]+' .$shortcut. '\b/', $contents)) {
+				// don't add if there is a 'const ...' declaration
+				continue;
+			}
+			
 			$definitions .= "if (typeof $shortcut == 'undefined') {\n"
 				. "  var $shortcut = " .$shortcuts[$shortcut]. ";\n"
 				. "}\n\n";
