@@ -213,6 +213,8 @@ class AddOnConverter {
 		$isConverted = false;
 		$newManifest = "";
 		
+		$manifestContentLines = file($manifestFile);
+		
 		$fp = fopen($manifestFile, "rb");
 		
 		while (($line = fgets($fp, 4096)) !== false) {
@@ -238,12 +240,14 @@ class AddOnConverter {
 			
 			$newManifest .= $line;
 
-			if ($newLine) {
+			if ($newLine && !$this->lineExistsInManifest($newLine, $manifestContentLines)) {
 				$newManifest .= $newLine;
 				$this->log("Added new line to $manifestFileName: '$newLine'");
 				$isConverted = true;
 			}
 		}
+		
+		fclose($fp);
 		
 		if ($isConverted) {
 			file_put_contents($manifestFile, $newManifest);
@@ -254,7 +258,7 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * Take existing manifest line and if it contants firefox-specific data
+	 * Take existing manifest line and if it contains firefox-specific data
 	 * then return new seamonkey-specific line. Otherwise, return empty string.
 	 * 
 	 * @param string $originalLine
@@ -268,6 +272,41 @@ class AddOnConverter {
 		} else {
 			return '';
 		}
+	}
+	
+	/**
+	 * Check if given line exists in manifest file.
+	 * 
+	 * @param string $line
+	 * @param array $manifestLines Contents of manifest file in separate lines
+	 * @return bool
+	 */
+	private function lineExistsInManifest($line, array $manifestLines) {
+		$lineSegm = preg_split('/\s+/', trim($line));
+		$countLineSegm = count($lineSegm);
+		
+		foreach ($manifestLines as $manLine) {
+			$manLineSegm = preg_split('/\s+/', trim($manLine));
+			
+			if (count($manLineSegm) != $countLineSegm) {
+				continue;
+			}
+			
+			$isSame = true;
+			
+			for ($i = 0; $i < $countLineSegm; $i++) {
+				if ($manLineSegm[$i] !== $lineSegm[$i]) {
+					$isSame = false;
+					break;
+				}
+			}
+			
+			if ($isSame) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	protected function log($msg) {
