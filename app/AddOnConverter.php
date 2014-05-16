@@ -506,7 +506,8 @@ class AddOnConverter {
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
-			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension() == 'js')) {
+			$ext = strtolower($pathInfo->getExtension());
+			if ($pathInfo->isFile() && ($ext == 'js' || $ext == 'jsm')) {
 				$contents = file_get_contents((string) $pathInfo);
 				$newContents = $this->addJsShortcutConstants($contents);
 				
