@@ -2,6 +2,8 @@
 require "app/Init.php";
 require "app/functions.php";
 
+emptyXPICache();
+
 try {
 	$amoURL = isset($_POST['url']) ? trim($_POST['url']) : null;
 	

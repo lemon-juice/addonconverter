@@ -1,5 +1,7 @@
 <?php
+require "app/functions.php";
 
+emptyXPICache();
 ?>
 <? include "templates/header.php" ?>
 
