@@ -277,12 +277,87 @@ class AddOnConverter {
 		$convertedLine = strtr($originalLine, $this->chromeURLReplacements);
 		
 		if ($convertedLine != $originalLine) {
+			$convertedLine = $this->fixManifestAppVersionLine($convertedLine);
 			return $convertedLine ."\n";
 		} else {
 			return '';
 		}
 	}
 	
+	/**
+	 * Fix appversion flag in manufest file: convert it to platformversion
+	 * @param string $line
+	 * @return string
+	 */
+	private function fixManifestAppVersionLine($line) {
+		$segments = preg_split('/(\s+)/', trim($line), -1, PREG_SPLIT_DELIM_CAPTURE);
+		$newLine = "";
+		
+		foreach ($segments as $key => $lineSegm) {
+			if (strpos($lineSegm, 'appversion') === 0) {
+				$flagSegm = preg_split('/(\s*[<=>]+\s*)/', $lineSegm, 3, PREG_SPLIT_DELIM_CAPTURE);
+
+				if (isset($flagSegm[2])) {
+					$flagSegm[2] = $this->translateAppToPlatformVersion($flagSegm[2]);
+					
+					$flagSegm[0] = 'platformversion';
+					$lineSegm = implode('', $flagSegm);
+				}
+			}
+			
+			$newLine .= $lineSegm;
+		}
+		
+		return $newLine;
+	}
+	
+	/**
+	 * Translate Firefox appversion to Gecko platformversion number.
+	 * See https://developer.mozilla.org/en-US/docs/Mozilla/Gecko/Versions
+	 * @param string $appVer app version number, may contain * at the end,
+	 *    e.g. 3.6.*
+	 * @return string
+	 */
+	private function translateAppToPlatformVersion($appVer) {
+		preg_match('/([\d.]*\d+)(.*)$/', $appVer, $matches);
+		
+		if (!isset($matches[2])) {
+			return $appVer;
+		}
+		
+		$ffVer = $matches[1];
+		$suffix = $matches[2];
+		
+		$gecko = $ffVer;
+		
+		if ($ffVer <= 1) {
+			$gecko = '1.7';
+			
+		} elseif ($ffVer <= 1.5) {
+			$gecko = '1.8';
+			
+		} elseif ($ffVer <= 2) {
+			$gecko = '1.8.1';
+			
+		} elseif ($ffVer <= 3) {
+			$gecko = '1.9';
+			
+		} elseif ($ffVer <= 3.5) {
+			$gecko = '1.9.1';
+			
+		} elseif ($ffVer <= 3.6) {
+			$gecko = '1.9.2';
+			
+		} elseif ($ffVer <= 4) {
+			$gecko = '2';
+			
+		} else {
+			$gecko = $ffVer;
+		}
+		
+		return $gecko.$suffix;
+	}
+
 	/**
 	 * Check if given line exists in manifest file.
 	 * 
