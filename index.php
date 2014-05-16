@@ -15,7 +15,7 @@
 		<input type="file" name="xpi" />
 	</div>
 	<div>
-		or paste URL of add-on page at addons.mozilla.org:
+		or paste full URL of add-on page at https://addons.mozilla.org/ or direct link to xpi file:
 		<input type="text" name="url" size="70" maxlength="250" />
 	</div>
 	<div>
