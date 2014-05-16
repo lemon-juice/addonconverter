@@ -31,9 +31,22 @@ try {
 		throw new Exception("Cannot find file");
 	}
 	
-	$content1 = strtr(trim(file_get_contents($origFile)), array(
-		"\r\n" => "\n",
-	));
+	
+	if ($file == 'install.rdf') {
+		// reformat XML because the diff cannot ignore indentation
+		$doc = new DOMDocument('1.0', 'utf-8');
+		$doc->preserveWhiteSpace = false;
+		$doc->formatOutput = true;
+		$doc->load($origFile);
+		$doc->encoding = 'utf-8';
+		
+		$content1 = trim($doc->saveXML());
+		
+	} else {
+		$content1 = strtr(trim(file_get_contents($origFile)), array(
+			"\r\n" => "\n",
+		));
+	}
 	
 	$content2 = strtr(trim(file_get_contents($convFile)), array(
 		"\r\n" => "\n",
