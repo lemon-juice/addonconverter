@@ -10,6 +10,7 @@ class AddOnConverter {
 	public $convertChromeURLsInExt = array();
 	
 	public $jsShortcuts = false;
+	public $jsKeywords = false;
 	// end config.
 
 	protected $sourceFile;
@@ -90,6 +91,14 @@ class AddOnConverter {
 		
 		if ($this->jsShortcuts) {
 			$filesConverted = $this->fixJsShortcuts();
+		}
+
+		if ($filesConverted > 0) {
+			$modified = true;
+		}
+		
+		if ($this->jsKeywords) {
+			$filesConverted = $this->fixJsKeywords();
 		}
 
 		if ($filesConverted > 0) {
@@ -529,7 +538,7 @@ class AddOnConverter {
 	 * @param string $contents
 	 * @return string contents with prepended definitions
 	 */
-	protected function addJsShortcutConstants($contents) {
+	private function addJsShortcutConstants($contents) {
 		$shortcuts = array(
 			'Cc' => 'Components.classes',
 			'Ci' => 'Components.interfaces',
@@ -559,4 +568,60 @@ class AddOnConverter {
 		
 		return $definitions . $contents;
 	}
+	
+	
+	/**
+	 * Fix Firefox keywords in js files
+	 * @return int number of changed files
+	 */
+	protected function fixJsKeywords() {
+		$changedCount = 0;
+		$dirLen = strlen($this->extractDir);
+		
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($this->extractDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+
+		foreach ($iterator as $pathInfo) {
+			$ext = strtolower($pathInfo->getExtension());
+			if ($pathInfo->isFile() && ($ext == 'js' || $ext == 'jsm')) {
+				$contents = file_get_contents((string) $pathInfo);
+				$newContents = $this->replaceJsKeywords($contents);
+				
+				if ($contents !== $newContents) {
+					file_put_contents((string) $pathInfo, $newContents);
+					
+					$localname = substr($pathInfo->__toString(), $dirLen + 1);
+					
+					$this->log("$localname: replaced some javascript keywords");
+					$changedCount++;
+				}
+			}
+		}
+		
+		return $changedCount;
+	}
+	
+	/**
+	 * @param string $contents
+	 * @return string contents with replaced keywords
+	 */
+	private function replaceJsKeywords($contents) {
+		$replacements = array(
+			'@mozilla.org/browser/sessionstore;1' => '@mozilla.org/suite/sessionstore;1',
+			'blockedPopupOptions' => 'popupNotificationMenu',
+		);
+		
+		foreach ($replacements as $from => $to) {
+			$tr = array(
+				"'".$from."'" => "'".$to."'",
+				'"'.$from.'"' => '"'.$to.'"',
+			);
+			
+			$contents = strtr($contents, $tr);
+		}
+		
+		return $contents;
+	}
+
 }

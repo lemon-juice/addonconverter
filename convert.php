@@ -44,6 +44,7 @@ try {
 		'xhtml',
 	);
 	$conv->jsShortcuts = true;
+	$conv->jsKeywords = true;
 	
 	$destFile = $conv->convert($tmpDestDir);
 	$result = $conv->getLogMessages();
