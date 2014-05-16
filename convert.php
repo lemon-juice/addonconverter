@@ -22,15 +22,21 @@ try {
 	mkdir($tmpDestDir);
 	
 	$tmpFile = "$tmpSourceDir/$uploadFileName";
-	
+	$maxFileSize = 16 * 1024 * 1024;
 	
 	if ($uploadFileName) {
 		if (!@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
 			throw new Exception("Error moving file to temporary folder");
 		}
 		
+		if (filesize($tmpFile) > $maxFileSize) {
+			unlink($tmpFile);
+			$maxMB = round($maxFileSize / 1024 / 1024, 1);
+			throw new Exception("Input file too large. Maximum $maxMB MB is allowed");
+		}
+		
 	} elseif ($amoURL) {
-		$ag = new AMOGrabber;
+		$ag = new AMOGrabber($maxFileSize);
 		$tmpFile = $ag->fetch($amoURL, $tmpSourceDir);
 	}
 	

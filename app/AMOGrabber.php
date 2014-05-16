@@ -1,6 +1,14 @@
 <?php
 class AMOGrabber {
 	
+	protected $maxFileSize;
+	
+	/**
+	 * @param int $maxFileSize
+	 */
+	public function __construct($maxFileSize) {
+		$this->maxFileSize = $maxFileSize;
+	}
 	
 	/**
 	 * @param string $url Full URL to extension on addons.mozilla.org
@@ -9,21 +17,20 @@ class AMOGrabber {
 	 * @throws Exception
 	 */
 	public function fetch($url, $destDir) {
-		//if (!preg_match('#^https://addons.mozilla.org/#', $url)) {
 		if (!preg_match('#^https?://.+#', $url)) {
 			throw new Exception("This URL is incorrect. Make sure to provide the whole URL including http:// or https:// part.");
 		}
 		
-		$source = @file_get_contents($url);
+		
+		$source = @file_get_contents($url, false, null, -1, $this->maxFileSize + 1024);
 		
 		if ($source === false) {
 			throw new Exception("Couldn't fetch file from remote server");
 		}
 		
 		// check max filesize
-		$maxMB = 16;
-		
-		if (strlen($source) > 1024 * 1024 * $maxMB) {
+		if (strlen($source) > $this->maxFileSize) {
+			$maxMB = round($this->maxFileSize / 1024 / 1024, 1);
 			throw new Exception("Input file too large. Maximum $maxMB MB is allowed");
 		}
 		
@@ -102,6 +109,11 @@ class AMOGrabber {
 		
 		if ($xpi === false) {
 			throw new Exception("Error fetching remote XPI: $error");
+		}
+		
+		if (strlen($xpi) > $this->maxFileSize) {
+			$maxMB = round($this->maxFileSize / 1024 / 1024, 1);
+			throw new Exception("Remote XPI file too large. Maximum $maxMB MB is allowed");
 		}
 		
 		$filename = pathinfo(parse_url($effectiveUrl, PHP_URL_PATH), PATHINFO_BASENAME);
