@@ -1,5 +1,6 @@
 <?php
 require "app/Init.php";
+require "app/functions.php";
 
 try {
 	$amoURL = isset($_POST['url']) ? trim($_POST['url']) : null;
@@ -10,7 +11,8 @@ try {
 		throw new Exception("No file to upload");
 	}
 	
-	$tmpDir = "tmp/convert/" . uniqid("", true);
+	$dirPart = uniqid("", true);
+	$tmpDir = "tmp/convert/$dirPart";
 	mkdir($tmpDir);
 	
 	$tmpSourceDir = "$tmpDir/source";
@@ -49,6 +51,8 @@ try {
 	$destFile = $conv->convert($tmpDestDir);
 	$result = $conv->getLogMessages();
 	
+	unlink($tmpFile);
+	
 	
 } catch (Exception $ex) {
 	$error = $ex->getMessage();
@@ -65,7 +69,7 @@ try {
 <? if ($destFile): ?>
 	<ol>
 		<? foreach ($result as $msg): ?>
-		<li><?=$msg ?></li>
+		<li><?=parseLogMsg($msg, $dirPart) ?></li>
 		<? endforeach ?>
 	</ol>
 

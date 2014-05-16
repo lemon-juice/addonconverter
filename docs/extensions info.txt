@@ -1,0 +1,44 @@
+TODO:
+ - Cc["@mozilla.org/browser/sessionstore;1"] -> Cc["@mozilla.org/suite/sessionstore;1"]
+ - traverse .jsm files too
+ - 'blockedPopupOptions' -> 'popupNotificationMenu'
+
+https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/
+ - problem with Cc undefined (see console)
+OK
+
+Easy Copy
+ - context menu
+FAIL
+
+https://addons.mozilla.org/en-US/firefox/addon/quickwiki/
+ - context menu
+ - keys
+OK (but some chrome error appears)
+
+https://addons.mozilla.org/en-US/firefox/addon/qrcoder/
+ - context menu
+ - restartless
+FAIL
+
+https://addons.mozilla.org/en-US/firefox/addon/empty-cache-button/
+OK
+
+https://addons.mozilla.org/en-US/firefox/addon/secure-login/
+FAIL
+
+https://addons.mozilla.org/en-US/firefox/addon/tab-mix-plus/
+FAIL
+
+https://addons.mozilla.org/en-US/firefox/addon/adblock-plus-pop-up-addon/
+OK
+
+https://addons.mozilla.org/en-US/firefox/addon/lightbeam/
+FAIL
+
+https://addons.mozilla.org/en-US/firefox/addon/google-translator-for-firefox/
+OK
+
+https://addons.mozilla.org/en-US/firefox/addon/qr-code-image-generator/
+FAIL
+

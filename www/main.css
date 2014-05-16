@@ -7,3 +7,14 @@ div.error {
 	color: red;
 	margin: 1em 0;
 }
+
+
+div.diff {
+	font-family: monospace;
+	white-space: pre-wrap;
+	border: 1px solid #888;
+	background: #eee;
+	padding: 10px;
+}
+div.diff ins {color:black;background:#b4ffb4;text-decoration:none}
+div.diff del {color:red;background:#fdd;text-decoration:none}

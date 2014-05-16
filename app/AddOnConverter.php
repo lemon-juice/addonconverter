@@ -14,7 +14,8 @@ class AddOnConverter {
 	// end config.
 
 	protected $sourceFile;
-	protected $extractDir;
+	protected $originalDir;
+	protected $convertedDir;
 	protected $logMessages = array();
 	protected $chromeURLReplacements;
 
@@ -33,17 +34,20 @@ class AddOnConverter {
 	public function __construct($sourceFile) {
 		$this->sourceFile = $sourceFile;
 		
-		$this->extractDir = dirname($sourceFile) . "/extracted";
-		$this->extractXPI($sourceFile, $this->extractDir);
+		$this->originalDir = dirname($sourceFile) . "/original";
+		$this->convertedDir = dirname($sourceFile) . "/converted";
+		$this->extractXPI($sourceFile, $this->originalDir, true);
+		$this->extractXPI($sourceFile, $this->convertedDir, false);
 		
-		if (!is_file($this->extractDir ."/install.rdf")) {
+		if (!is_file($this->convertedDir ."/install.rdf")) {
 			throw new Exception("install.rdf not found in installer");
 		}
 		
-		$this->installRdf = new DOMDocument();
+		$this->installRdf = new DOMDocument('1.0', 'utf-8');
 		$this->installRdf->preserveWhiteSpace = false;
 		$this->installRdf->formatOutput = true;
-		$result = @$this->installRdf->load($this->extractDir ."/install.rdf");
+		$result = @$this->installRdf->load($this->convertedDir ."/install.rdf");
+		$this->installRdf->encoding = 'utf-8';
 		
 		if (!$result) {
 			throw new Exception("Cannot parse install.rdf as XML");
@@ -71,7 +75,7 @@ class AddOnConverter {
 		
 		if ($newInstallRdf) {
 			// write modified file
-			file_put_contents($this->extractDir ."/install.rdf", $newInstallRdf->saveXML());
+			file_put_contents($this->convertedDir ."/install.rdf", $newInstallRdf->saveXML());
 			unset($newInstallRdf);
 			$modified = true;
 		}
@@ -110,7 +114,10 @@ class AddOnConverter {
 			$filename = $this->createNewFileName($this->sourceFile);
 			$destFile = "$destDir/$filename";
 			
-			$this->zipDir($this->extractDir, $destFile);
+			$this->zipDir($this->convertedDir, $destFile);
+			
+			// extract jars again for diff
+			$this->extractJARs($this->convertedDir, true);
 			
 			return $destFile;
 		}
@@ -169,11 +176,11 @@ class AddOnConverter {
 					// maxVersion missing
 					$maxVersion = $this->installRdf->createElementNS("http://www.mozilla.org/2004/em-rdf#", "maxVersion", $maxVersionStr);
 					
-					$this->log("install.rdf: Added missing maxVersion");
+					$this->log("<a>install.rdf</a>: Added missing maxVersion");
 					$docChanged = true;
 					
 				} elseif ($maxVersion && $maxVersion->nodeValue != $maxVersionStr) {
-					$this->log("install.rdf: Changed <em>maxVersion</em> from '$maxVersion->nodeValue' to '$maxVersionStr'");
+					$this->log("<a>install.rdf</a>: Changed <em>maxVersion</em> from '$maxVersion->nodeValue' to '$maxVersionStr'");
 					
 					$maxVersion->nodeValue = $maxVersionStr;
 					$docChanged = true;
@@ -199,7 +206,7 @@ class AddOnConverter {
 			$tApp->appendChild($Description);
 			$topDescription->appendChild($tApp);
 			
-			$this->log("install.rdf: Added SeaMonkey to list of supported applications");
+			$this->log("<a>install.rdf</a>: Added SeaMonkey to list of supported applications");
 			$docChanged = true;
 		}
 		
@@ -209,10 +216,11 @@ class AddOnConverter {
 	/**
 	 * Convert chrome.manifest and any included manifest files
 	 * 
+	 * @param string $manifestFileName filename of manifest file
 	 * @return int number of converted files
 	 */
 	protected function convertManifest($manifestFileName) {
-		$manifestFile = $this->extractDir ."/$manifestFileName";
+		$manifestFile = $this->convertedDir ."/$manifestFileName";
 		
 		if (!is_file($manifestFile)) {
 			return 0;
@@ -251,7 +259,7 @@ class AddOnConverter {
 
 			if ($newLine && !$this->lineExistsInManifest($newLine, $manifestContentLines)) {
 				$newManifest .= $newLine;
-				$this->log("Added new line to $manifestFileName: '$newLine'");
+				$this->log("Added new line to <a>$manifestFileName</a>: '$newLine'");
 				$isConverted = true;
 			}
 		}
@@ -409,11 +417,13 @@ class AddOnConverter {
 	}
 	
 	/**
+	 * Extract XPI archive and extract all JAR files inside
 	 * @param string $archiveFile
 	 * @param string $extractDir
+	 * @param bool $deleteJARs Whether to delete JAR files after extraction
 	 * @throws Exception
 	 */
-	protected function extractXPI($archiveFile, $extractDir) {
+	protected function extractXPI($archiveFile, $extractDir, $deleteJARs) {
 		$zip = new ZipArchive;
 		$result = $zip->open($archiveFile);
 
@@ -430,14 +440,15 @@ class AddOnConverter {
 		}
 		$zip->close();
 		
-		$this->extractJARs($extractDir);
+		$this->extractJARs($extractDir, $deleteJARs);
 	}
 	
 	/**
-	 * Extract XPI archive and extract all JAR files inside
-	 * @param type $dir
+	 * @param string $dir
+	 * @param bool $deleteJARs Whether to delete JAR files after extraction
+	 * @throws Exception
 	 */
-	protected function extractJARs($dir) {
+	protected function extractJARs($dir, $deleteJARs) {
 		$iterator = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
 			RecursiveIteratorIterator::SELF_FIRST);
@@ -445,9 +456,23 @@ class AddOnConverter {
 		foreach ($iterator as $pathInfo) {
 			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jar') {
 				$zip = new ZipArchive;
-				$zip->open($pathInfo->__toString());
-				$zip->extractTo($pathInfo->getPath());
+				$res = $zip->open($pathInfo->__toString());
+				
+				if ($res !== true) {
+					throw new Exception("Cannot open JAR archive");
+				}
+				
+				$res = $zip->extractTo($pathInfo->getPath());
+				
+				if ($res !== true) {
+					throw new Exception("Cannot extract JAR archive");
+				}
+				
 				$zip->close();
+				
+				if ($deleteJARs) {
+					unlink($pathInfo->__toString());
+				}
 			}
 		}
 	}
@@ -467,7 +492,7 @@ class AddOnConverter {
 		$res = $zip->open($destFile, ZipArchive::CREATE);
 		
 		if (!$res) {
-			throw new Exception("Cannot open ZipArchive");
+			throw new Exception("Cannot open ZipArchive for writing");
 		}
 		
 		$iterator = new RecursiveIteratorIterator(
@@ -552,10 +577,10 @@ class AddOnConverter {
 		}
 		
 		$changedCount = 0;
-		$dirLen = strlen($this->extractDir);
+		$dirLen = strlen($this->convertedDir);
 		
 		$iterator = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($this->extractDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			new RecursiveDirectoryIterator($this->convertedDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
@@ -568,7 +593,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("$localname: replaced chrome: URL's to those used in SeaMonkey");
+					$this->log("<a>$localname</a>: replaced chrome: URL's to those used in SeaMonkey");
 					$changedCount++;
 				}
 			}
@@ -583,10 +608,10 @@ class AddOnConverter {
 	 */
 	protected function fixJsShortcuts() {
 		$changedCount = 0;
-		$dirLen = strlen($this->extractDir);
+		$dirLen = strlen($this->convertedDir);
 		
 		$iterator = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($this->extractDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			new RecursiveDirectoryIterator($this->convertedDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
@@ -600,7 +625,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("$localname: added definitions for javascript shortcuts, which are not available in SeaMonkey");
+					$this->log("<a>$localname</a>: added definitions for javascript shortcuts, which are not available in SeaMonkey");
 					$changedCount++;
 				}
 			}
@@ -651,10 +676,10 @@ class AddOnConverter {
 	 */
 	protected function fixJsKeywords() {
 		$changedCount = 0;
-		$dirLen = strlen($this->extractDir);
+		$dirLen = strlen($this->convertedDir);
 		
 		$iterator = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($this->extractDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			new RecursiveDirectoryIterator($this->convertedDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
@@ -668,7 +693,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("$localname: replaced some javascript keywords");
+					$this->log("<a>$localname</a>: replaced some javascript keywords");
 					$changedCount++;
 				}
 			}
