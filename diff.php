@@ -63,10 +63,11 @@ try {
 
 ?>
 
+<? $mainClass = "diff-page" ?>
 <? include "templates/header.php" ?>
 
 
-<h1><?=htmlspecialchars($file) ?></h1>
+<h2>diff: <?=htmlspecialchars($file) ?></h2>
 
 <? if ($error === null): ?>
 <div class="diff"><?=$diffHtml ?></div>

@@ -5,11 +5,11 @@ require "app/functions.php";
 emptyXPICache();
 
 try {
-	$amoURL = isset($_POST['url']) ? trim($_POST['url']) : null;
+	$url = isset($_POST['url']) ? trim($_POST['url']) : null;
 	
 	$uploadFileName = (empty($_FILES) || empty($_FILES['xpi']['name'])) ? '' : $_FILES['xpi']['name'];
 	
-	if (!$uploadFileName && !$amoURL) {
+	if (!$uploadFileName && !$url) {
 		throw new Exception("No file to upload");
 	}
 	
@@ -37,24 +37,26 @@ try {
 			throw new Exception("Input file too large. Maximum $maxMB MB is allowed");
 		}
 		
-	} elseif ($amoURL) {
+	} elseif ($url) {
 		$ag = new AMOGrabber($maxFileSize);
-		$tmpFile = $ag->fetch($amoURL, $tmpSourceDir);
+		$tmpFile = $ag->fetch($url, $tmpSourceDir);
 	}
 	
 	
 	$conv = new AddOnConverter($tmpFile);
-	$conv->maxVersionStr = $_POST['maxVersion'];
-	$conv->convertChromeURLsInExt = array(
-		'xul',
-		'rdf',
-		'js',
-		'xml',
-		'html',
-		'xhtml',
-	);
-	$conv->jsShortcuts = true;
-	$conv->jsKeywords = true;
+	
+	$conv->maxVersionStr = substr(trim($_POST['maxVersion']), 0, 10);
+	$conv->convertChromeURLsInExt = array();
+	
+	if (isset($_POST['convertChromeExtensions'])
+		&& is_array($_POST['convertChromeExtensions'])
+		&& count($_POST['convertChromeExtensions'] < 30)
+	) {
+		$conv->convertChromeURLsInExt = $_POST['convertChromeExtensions'];
+	}
+	
+	$conv->jsShortcuts = !empty($_POST['jsShortcuts']);
+	$conv->jsKeywords = !empty($_POST['jsKeywords']);
 	
 	$destFile = $conv->convert($tmpDestDir);
 	$result = $conv->getLogMessages();
@@ -72,7 +74,7 @@ try {
 
 <? include "templates/header.php" ?>
 
-<h1>Conversion Result</h1>
+<h2>Conversion Results (click on file names too see changes):</h2>
 
 <? if ($destFile): ?>
 	<ol>
@@ -84,11 +86,17 @@ try {
 	<h2>Your converted add-on is available for download here:</h2>
 	<p>
 		<a href="<?=htmlspecialchars($destFile) ?>"><?=htmlspecialchars(basename($destFile)) ?></a>
+		&mdash;
+		<span class="filesize">
+			<?=round(filesize($destFile) / 1024) ?> KB
+		</span>
 	</p>
 
 
 <? else: ?>
 	<p>I didn't find anything to convert in this add-on.</p>
 <? endif ?>
+
+	<p style="margin-top: 2em"><a href=".">« perform another conversion</a></p>
 
 <? include "templates/footer.php" ?>
