@@ -27,6 +27,8 @@ try {
 	$maxFileSize = 16 * 1024 * 1024;
 	
 	if ($uploadFileName) {
+		logFormSubmission($uploadFileName);
+		
 		if (!@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
 			throw new Exception("Error moving file to temporary folder");
 		}
@@ -38,6 +40,8 @@ try {
 		}
 		
 	} elseif ($url) {
+		logFormSubmission($url);
+		
 		$ag = new AMOGrabber($maxFileSize);
 		$tmpFile = $ag->fetch($url, $tmpSourceDir);
 	}

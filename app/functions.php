@@ -45,3 +45,17 @@ function deleteWholeDir($dir) {
 	
 	rmdir($dir);
 }
+
+
+function logFormSubmission($item) {
+	$logFile = "logs/submit" .date("Y-m"). ".txt";
+	
+	$log = date('Y-m-d H:i:s')
+		. "\t".$item
+		. "\t".$_SERVER['REMOTE_ADDR']
+		. "\t".gethostbyaddr($_SERVER['REMOTE_ADDR'])
+		. "\t".$_SERVER['HTTP_USER_AGENT']
+		. "\n";
+	
+	file_put_contents($logFile, $log, FILE_APPEND);
+}
