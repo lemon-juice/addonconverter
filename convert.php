@@ -10,7 +10,7 @@ try {
 	$uploadFileName = (empty($_FILES) || empty($_FILES['xpi']['name'])) ? '' : $_FILES['xpi']['name'];
 	
 	if (!$uploadFileName && !$url) {
-		throw new Exception("No file to upload");
+		throw new Exception("No file to process");
 	}
 	
 	$dirPart = uniqid("", true);
@@ -85,7 +85,7 @@ try {
 
 	<h2>Your converted add-on is available for download here:</h2>
 	<p>
-		<a href="<?=htmlspecialchars($destFile) ?>"><?=htmlspecialchars(basename($destFile)) ?></a>
+		<a href="<?=htmlspecialchars($destFile) ?>" class="download"><?=htmlspecialchars(basename($destFile)) ?></a>
 		&mdash;
 		<span class="filesize">
 			<?=round(filesize($destFile) / 1024) ?> KB

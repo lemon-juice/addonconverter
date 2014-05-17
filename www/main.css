@@ -12,6 +12,12 @@ body {
 input {
 	font-size: 85%;
 }
+a {
+	color: blue;
+}
+a:visited {
+	color: navy;
+}
 
 div.header {
 	text-align: center;
@@ -44,7 +50,7 @@ div.error {
 	border-radius: 7px;
 	padding: 15px 20px;
 	width: 55em;
-	margin: 0 auto;
+	margin: 0 auto 20px auto;
 }
 #main.diff-page {
 	width: 93%;
@@ -56,7 +62,7 @@ form div.group {
 	background-color: #bfe3bf;
 	border: 1px solid #aaa;
 	border-radius: 7px;
-	padding: 0.5em 0;
+	padding: 0.5em 0.8em;
 }
 form div.group.options {
 	font-size: 90%;
@@ -67,7 +73,7 @@ form div.group.options {
 	font-size: 100%;
 }
 form div.checkboxes {
-	margin-bottom: 1em;
+	margin: 0 0 1em 2em;
 }
 form div.checkboxes label {
 	margin-left: 0.5em;
@@ -75,9 +81,9 @@ form div.checkboxes label {
 form div.checkboxes label:first-child {
 	margin-left: 0;
 }
-
-form {
-	text-align: center;
+form input[type=submit] {
+	font-size: 110%;
+	font-weight: bold;
 }
 
 div.info {
@@ -85,15 +91,19 @@ div.info {
 	font-size: 90%;
 }
 div.info .warning {
-	color: #e60000;
+	color: #dd0000;
 	background-color: #ffffcc;
-	padding: 2px;
-	
+	padding: 3px 6px;
+	border: 1px dotted black;	
 }
 
 ol li {
 	font-size: 85%;
 	margin: 0.5em 0;
+}
+
+a.download {
+	font-weight: bold;
 }
 
 div.diff {
