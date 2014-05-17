@@ -11,13 +11,18 @@ emptyXPICache();
 		<div class="error"><?=$error ?></div>
 	<? endif ?>
 	
+		<div class="info">
+			<p>The purpose of this tool is to make Firefox and Thunderbird extensions compatible with SeaMonkey. It will run a couple of automatic conversions based on <a href="https://developer.mozilla.org/en-US/Add-ons/SeaMonkey_2">most commonly known differences</a> between Firefox and SeaMonkey. There is no guarantee that every extension will work in SeaMonkey &mdash; it will usually install but how and if it will work depends on the code. The simpler the extension the more likelihood of succeess.</p>
+			<p class="warning">Warning! While there are some non-SeaMonkey extensions that can be automatically made compatible with SeaMonkey there is no guarantee what will actually happen. If you are unsure, it is strongly suggested you test the modded extension in a separate profile first as it can behave unexpectedly. Such modifications are not supported by Mozilla nor by add-on authors so remember you are doing this at your own risk!</p>
+		</div>
+	
 	<div class="group">
 		Upload add-on installer file (with <em>.xpi</em> filename extension):
 		<div class="field"><input type="file" name="xpi" /></div>
 	</div>
 	
 	<div class="group">
-		or paste full URL of add-on page at https://addons.mozilla.org/ or direct link to xpi file:
+		or paste direct link to xpi file or full URL of add-on page at https://addons.mozilla.org/:
 		<div class="field"><input type="text" name="url" size="95" maxlength="250" /></div>
 	</div>
 	
@@ -36,7 +41,7 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			convert <em>chrome://</em> URL's in folloing file types:
+			convert <em>chrome://</em> URL's in following file types:
 		</div>
 		<div class="checkboxes">
 			<label><input type="checkbox" name="convertChromeExtensions[]" value="xul" checked="" /> xul</label>

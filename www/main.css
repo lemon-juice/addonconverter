@@ -3,14 +3,14 @@ html, body {
 	margin: 0;
 }
 body, input {
-	font-family: Georgia, serif;
+	font-family: verdana, sans-serif;
 	color: black;
 }
 body {
-	font-size: 105%;
+	font-size: 90%;
 }
 input {
-	font-size: 95%;
+	font-size: 85%;
 }
 
 div.header {
@@ -43,22 +43,22 @@ div.error {
 	border: 1px solid #d2d6d6;
 	border-radius: 7px;
 	padding: 15px 20px;
-	width: 45em;
+	width: 55em;
 	margin: 0 auto;
 }
 #main.diff-page {
 	width: 93%;
 }
-#main div {
+form div {
 	margin: 0.5em 0;
 }
-#main div.group {
+form div.group {
 	background-color: #bfe3bf;
 	border: 1px solid #aaa;
 	border-radius: 7px;
 	padding: 0.5em 0;
 }
-#main div.group.options {
+form div.group.options {
 	font-size: 90%;
 }
 #main h2 {
@@ -66,18 +66,29 @@ div.error {
 	padding: 0;
 	font-size: 100%;
 }
-#main div.checkboxes {
+form div.checkboxes {
 	margin-bottom: 1em;
 }
-#main div.checkboxes label {
+form div.checkboxes label {
 	margin-left: 0.5em;
 }
-#main div.checkboxes label:first-child {
+form div.checkboxes label:first-child {
 	margin-left: 0;
 }
 
 form {
 	text-align: center;
+}
+
+div.info {
+	text-align: justify;
+	font-size: 90%;
+}
+div.info .warning {
+	color: #e60000;
+	background-color: #ffffcc;
+	padding: 2px;
+	
 }
 
 ol li {
