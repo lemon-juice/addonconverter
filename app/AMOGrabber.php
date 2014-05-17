@@ -2,23 +2,46 @@
 class AMOGrabber {
 	
 	protected $maxFileSize;
-	
+	protected $cacheLifetime;
+	protected $cacheDir;
+
+
 	/**
 	 * @param int $maxFileSize
 	 */
 	public function __construct($maxFileSize) {
 		$this->maxFileSize = $maxFileSize;
+		
+		$this->cacheLifetime = 15 * 60;
+		$this->cacheDir = "tmp/remote-cache";
+		
+		if (!is_dir($this->cacheDir)) {
+			mkdir($this->cacheDir);
+		}
+		
+		$this->clearCache();
 	}
 	
 	/**
 	 * @param string $url Full URL to extension on addons.mozilla.org
 	 * @param string $destDir Path to existing dir where to save fetched file
-	 * @return string Path and filename to saved file
+	 * @return string Path to saved file
 	 * @throws Exception
 	 */
 	public function fetch($url, $destDir) {
 		if (!preg_match('#^https?://.+#', $url)) {
 			throw new Exception("This URL is incorrect. Make sure to provide the whole URL including http:// or https:// part.");
+		}
+		
+		$isAMOUrl = preg_match('#^https://addons.mozilla.org/#i', $url);
+		
+		if ($isAMOUrl) {
+			// attempt to load file from cache
+			$pathToFile = $this->fetchXPIFromCache($url, $destDir);
+			
+			if ($pathToFile !== null) {
+				return $pathToFile;
+			}
 		}
 		
 		
@@ -35,15 +58,19 @@ class AMOGrabber {
 		}
 		
 		
-		if (preg_match('#^https://addons.mozilla.org/#i', $url)) {
-			return $this->fetchXPIFromAMO($source, $url, $destDir);
+		if ($isAMOUrl) {
+			
+			$pathToFile = $this->fetchXPIFromAMO($source, $url, $destDir);
+			$this->saveFileInCache($pathToFile, $url, basename($pathToFile));
+			
+			return $pathToFile;
 			
 		} else {
 			// assume this is the target XPI
 			$isZip = substr($source, 0, 2) == 'PK';
 
 			if ($isZip) {
-				$filename = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_BASENAME);
+				$filename = $this->urlToFilename($url);
 				$destFile = "$destDir/$filename";
 
 				file_put_contents($destFile, $source);
@@ -56,10 +83,12 @@ class AMOGrabber {
 	}
 
 	/**
-	 * @param source $source
-	 * @param source $url
+	 * Fetch XPI from page on AMO.
+	 * 
+	 * @param source $source HTML source of add-on page on AMO
+	 * @param source $url URL of $source
 	 * @param source $destDir where to save fetched file
-	 * @return string Path and filename to saved file
+	 * @return string Path to saved file
 	 * @throws Exception
 	 */
 	protected function fetchXPIFromAMO($source, $url, $destDir) {
@@ -116,7 +145,7 @@ class AMOGrabber {
 			throw new Exception("Remote XPI file too large. Maximum $maxMB MB is allowed");
 		}
 		
-		$filename = pathinfo(parse_url($effectiveUrl, PHP_URL_PATH), PATHINFO_BASENAME);
+		$filename = $this->urlToFilename($effectiveUrl);
 		
 		$destFile = "$destDir/$filename";
 		
@@ -138,5 +167,56 @@ class AMOGrabber {
 		} else {
 			return $base . $baseInfo['path'] . $baseUrl;
 		}
+	}
+	
+	protected function saveFileInCache($pathToFile, $url, $filename) {
+		$cacheFile = "$this->cacheDir/" . sha1($url). ".$filename";
+		
+		copy($pathToFile, $cacheFile);
+	}
+
+	/**
+	 * @param string $url
+	 * @param string $destDir
+	 * @return string|null Path to saved file or NULL if file from cache
+	 *    couldn't be fetched
+	 */
+	protected function fetchXPIFromCache($url, $destDir) {
+		$files = glob("$this->cacheDir/" .sha1($url). ".*");
+		
+		if (!$files) {
+			return null;
+		}
+		
+		$cacheFile = $files[0];
+		
+		if (@filemtime($cacheFile) < time() - $this->cacheLifetime) {
+			// no cache available
+			return null;
+		}
+		
+		$filename = basename($files[0]);
+		$filename = substr($filename, strpos($filename, '.') + 1);
+		
+		$destFile = "$destDir/$filename";
+		
+		copy($cacheFile, $destFile);
+		return $destFile;
+	}
+	
+	protected function clearCache() {
+		$expiry = time() - $this->cacheLifetime;
+		
+		foreach (scandir($this->cacheDir) as $filename) {
+			$file = "$this->cacheDir/$filename";
+			
+			if ($filename[0] != '.' && is_file($file) && filemtime($file) < $expiry) {
+				unlink($file);
+			}
+		}
+	}
+	
+	protected function urlToFilename($url) {
+		return pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_BASENAME);
 	}
 }
