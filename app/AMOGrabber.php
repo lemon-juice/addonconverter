@@ -57,9 +57,11 @@ class AMOGrabber {
 			throw new Exception("Input file too large. Maximum $maxMB MB is allowed");
 		}
 		
+		$isZip = substr($source, 0, 2) == 'PK';
 		
-		if ($isAMOUrl) {
-			
+		
+		if ($isAMOUrl && !$isZip) {
+			// html page at AMO
 			$pathToFile = $this->fetchXPIFromAMO($source, $url, $destDir);
 			$this->saveFileInCache($pathToFile, $url, basename($pathToFile));
 			
@@ -67,8 +69,6 @@ class AMOGrabber {
 			
 		} else {
 			// assume this is the target XPI
-			$isZip = substr($source, 0, 2) == 'PK';
-
 			if ($isZip) {
 				$filename = $this->urlToFilename($url);
 				$destFile = "$destDir/$filename";
