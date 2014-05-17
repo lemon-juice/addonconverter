@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Extension Converter for SeaMonkey</title>
-	<link rel="stylesheet" type="text/css" href="www/main.css" />
+	<link rel="stylesheet" type="text/css" href="/www/main.css" />
 <!--	<script type="text/javascript" src="www/scripts.js"></script>-->
 </head>
 
@@ -11,8 +11,8 @@
 
 <div class="header">
 	<h1>
-		<a href=".">
-			<img src="www/sm-logo.png" alt="" />
+		<a href="/">
+			<img src="/www/sm-logo.png" alt="" />
 			Add-on Converter for SeaMonkey
 		</a>
 	</h1>
