@@ -710,6 +710,9 @@ class AddOnConverter {
 		$replacements = array(
 			'@mozilla.org/browser/sessionstore;1' => '@mozilla.org/suite/sessionstore;1',
 			'blockedPopupOptions' => 'popupNotificationMenu',
+			'bookmarksMenuPopup' => 'menu_BookmarksPopup',
+			'menu_ToolsPopup' => 'taskPopup',
+			'menu_HelpPopup' => 'helpPopup',
 		);
 		
 		foreach ($replacements as $from => $to) {
