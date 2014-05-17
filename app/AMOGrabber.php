@@ -4,6 +4,8 @@ class AMOGrabber {
 	protected $maxFileSize;
 	protected $cacheLifetime;
 	protected $cacheDir;
+	
+	const USER_AGENT = "Add-on Converter for SeaMonkey";
 
 
 	/**
@@ -44,8 +46,15 @@ class AMOGrabber {
 			}
 		}
 		
+		$context = stream_context_create(array(
+			'http' => array(
+				'method' => 'GET',
+				'timeout' => 30,
+				'user_agent' => self::USER_AGENT,
+			)
+		));
 		
-		$source = @file_get_contents($url, false, null, -1, $this->maxFileSize + 1024);
+		$source = @file_get_contents($url, false, $context, -1, $this->maxFileSize + 1024);
 		
 		if ($source === false) {
 			throw new Exception("Couldn't fetch file from remote server");
@@ -130,6 +139,7 @@ class AMOGrabber {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_USERAGENT, self::USER_AGENT);
 
 		$xpi = curl_exec($ch);
 		$error = curl_error($ch);
