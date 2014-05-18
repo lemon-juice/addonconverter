@@ -42,6 +42,11 @@ OK
 https://addons.mozilla.org/en-US/firefox/addon/qr-code-image-generator/
 FAIL
 
+https://addons.mozilla.org/en-US/firefox/addon/text-link/
+ok
+
+
+
 
 
 
@@ -128,3 +133,11 @@ fail
 https://addons.mozilla.org/en-US/thunderbird/addon/archive-this/
 fail
 
+https://addons.mozilla.org/en-US/thunderbird/addon/attachmentextractor/
+some errors but seems to work fine
+
+https://addons.mozilla.org/en-US/thunderbird/addon/importexporttools/
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/signature-switch/
+ok !

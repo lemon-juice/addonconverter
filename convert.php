@@ -59,6 +59,7 @@ try {
 		$conv->convertChromeURLsInExt = $_POST['convertChromeExtensions'];
 	}
 	
+	$conv->xulIds = !empty($_POST['xulIds']);
 	$conv->jsShortcuts = !empty($_POST['jsShortcuts']);
 	$conv->jsKeywords = !empty($_POST['jsKeywords']);
 	

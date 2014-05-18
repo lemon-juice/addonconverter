@@ -9,6 +9,7 @@ class AddOnConverter {
 	 */
 	public $convertChromeURLsInExt = array();
 	
+	public $xulIds = false;
 	public $jsShortcuts = false;
 	public $jsKeywords = false;
 	// end config.
@@ -88,6 +89,14 @@ class AddOnConverter {
 		}
 		
 		$filesConverted = $this->replaceChromeURLs($this->convertChromeURLsInExt);
+
+		if ($filesConverted > 0) {
+			$modified = true;
+		}
+		
+		if ($this->xulIds) {
+			$filesConverted = $this->replaceXulIds();
+		}
 
 		if ($filesConverted > 0) {
 			$modified = true;
@@ -594,6 +603,43 @@ class AddOnConverter {
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
 					$this->log("<a>$localname</a>: replaced chrome: URL's to those used in SeaMonkey");
+					$changedCount++;
+				}
+			}
+		}
+		
+		return $changedCount;
+	}
+	
+	/**
+	 * Replace some IDs in XUL overlay files
+	 * 
+	 * @return int number of changed files
+	 */
+	protected function replaceXulIds() {
+		
+		$changedCount = 0;
+		$dirLen = strlen($this->convertedDir);
+		
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($this->convertedDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+
+		foreach ($iterator as $pathInfo) {
+			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'xul') {
+				
+				$contents = file_get_contents((string) $pathInfo);
+				$newContents = strtr($contents, array(
+					"'msgComposeContext'" => "'contentAreaContextMenu'",
+					'"msgComposeContext"' => '"contentAreaContextMenu"',
+				));
+				
+				if ($contents !== $newContents) {
+					file_put_contents((string) $pathInfo, $newContents);
+					
+					$localname = substr($pathInfo->__toString(), $dirLen + 1);
+					
+					$this->log("<a>$localname</a>: replaced ID's to those used in SeaMonkey");
 					$changedCount++;
 				}
 			}

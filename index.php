@@ -58,6 +58,10 @@ emptyXPICache();
 		</div>
 		
 		<div>
+			<label><input type="checkbox" name="xulIds" checked="" /> replace some Thunderbird-specific IDs in xul overlay files</label>
+		</div>
+		
+		<div>
 			<label><input type="checkbox" name="jsKeywords" checked="" /> replace some Firefox-specific keywords in js files</label>
 		</div>
 		
