@@ -656,7 +656,7 @@ class AddOnConverter {
 		
 		foreach ($found as $shortcut) {
 			
-			if (preg_match('/\bconst[ \t]+' .$shortcut. '\b/', $contents)) {
+			if (preg_match('/\bconst\b.*?\b' .$shortcut. '\b.*?=/s', $contents)) {
 				// don't add if there is a 'const ...' declaration
 				continue;
 			}

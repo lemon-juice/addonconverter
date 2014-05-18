@@ -42,3 +42,80 @@ OK
 https://addons.mozilla.org/en-US/firefox/addon/qr-code-image-generator/
 FAIL
 
+
+
+
+Thunderbird:
+https://addons.mozilla.org/en-US/thunderbird/addon/todays-messages/
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/smilie-inserter/
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/confirm-address-5582/
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/check-domain/?src=cb-dl-hotness
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/autoarchivereloaded/
+fail: investigate
+
+https://addons.mozilla.org/en-US/thunderbird/addon/address-move-button/
+ok
+doesn't load from AMO!
+
+https://addons.mozilla.org/en-US/thunderbird/addon/display-quota/
+ok
+
+https://addons.mozilla.org/en-US/firefox/addon/color-transform/
+ok with Cc disabled - maybe shouldn't work in strict mode?
+
+https://addons.mozilla.org/en-US/thunderbird/addon/mailmindr/
+ok but error in chrome://mailmindr/content/dialogs/timespaneditor.xul
+cannot read XPI
+
+https://addons.mozilla.org/en-US/thunderbird/addon/keyword-highlight/
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/blinking-alert/?src=cb-dl-hotness
+error in prefs
+
+https://addons.mozilla.org/en-US/thunderbird/addon/subswitch/
+partly - need more testing
+
+https://addons.mozilla.org/en-US/thunderbird/addon/printingtools/
+cannot read xpi
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/auto-address-cleaner/?src=cb-dl-hotness
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/custom-address-sidebar/
+cannot read xpi
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/quicktext/
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/stationery/
+fail - options don't open
+
+https://addons.mozilla.org/en-US/thunderbird/addon/tag-toolbar/
+fail - options don't open
+
+https://addons.mozilla.org/en-US/thunderbird/addon/xnote/
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/ruler-bar/
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/color-folders/
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/disable-draganddrop-thunderbir/
+ok
+
+https://addons.mozilla.org/en-US/thunderbird/addon/withattach/
+partly - toolbar buttons don't show
+
