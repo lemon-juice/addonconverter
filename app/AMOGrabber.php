@@ -167,6 +167,12 @@ class AMOGrabber {
 	}
 
 	protected function relativeToAbsoluteURL($relUrl, $baseUrl) {
+		
+		if (preg_match('#^https?://#i', $relUrl)) {
+			// given url is already absolute - nothing to do
+			return $relUrl;
+		}
+		
 		$baseInfo = parse_url($baseUrl);
 		$base = $baseInfo['scheme'] . "://"
 			. $baseInfo['host'];

@@ -63,7 +63,6 @@ fail: investigate
 
 https://addons.mozilla.org/en-US/thunderbird/addon/address-move-button/
 ok
-doesn't load from AMO!
 
 https://addons.mozilla.org/en-US/thunderbird/addon/display-quota/
 ok
