@@ -1,143 +1,63 @@
-TODO:
- - Cc["@mozilla.org/browser/sessionstore;1"] -> Cc["@mozilla.org/suite/sessionstore;1"]
- - traverse .jsm files too
- - 'blockedPopupOptions' -> 'popupNotificationMenu'
+Firefox extensions that work after conversion:
 
-https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/
- - problem with Cc undefined (see console)
-OK
+[list]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/]Turn Off the Lights[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/quickwiki/]QuickWiki[/url] (works but some js errors in console)
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/empty-cache-button/]Empty Cache Button[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/adblock-plus-pop-up-addon/]Adblock Plus Pop-up Addon[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/google-translator-for-firefox/]Google Translator for Firefox[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/text-link/]Text Link[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/fast-dial-5721/]Fast Dial[/url] seems to work, although some js errors appear, needs more testing
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/reloadevery/]ReloadEvery[/url] works but context menu on tabs doesn't appear
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/nosquint/]NoSquint[/url] partly
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/blocksite/]BlockSite[/url] partly - password protection doesn't work
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/color-transform/]Color Transform[/url]
+[/list]
 
-Easy Copy
- - context menu
-FAIL
-
-https://addons.mozilla.org/en-US/firefox/addon/quickwiki/
- - context menu
- - keys
-OK (but some chrome error appears)
-
-https://addons.mozilla.org/en-US/firefox/addon/qrcoder/
- - context menu
- - restartless
-FAIL
-
-https://addons.mozilla.org/en-US/firefox/addon/empty-cache-button/
-OK
-
-https://addons.mozilla.org/en-US/firefox/addon/secure-login/
-FAIL
-
-https://addons.mozilla.org/en-US/firefox/addon/tab-mix-plus/
-FAIL
-
-https://addons.mozilla.org/en-US/firefox/addon/adblock-plus-pop-up-addon/
-OK
-
-https://addons.mozilla.org/en-US/firefox/addon/lightbeam/
-FAIL
-
-https://addons.mozilla.org/en-US/firefox/addon/google-translator-for-firefox/
-OK
-
-https://addons.mozilla.org/en-US/firefox/addon/qr-code-image-generator/
-FAIL
-
-https://addons.mozilla.org/en-US/firefox/addon/text-link/
-ok
+Firefox extensions that [b]do not[/b] work after conversion:
+[list]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/qrcoder/]QrCodeR[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/secure-login/]Secure Login[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/tab-mix-plus/]Tab Mix Plus[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/lightbeam/]Lightbeam for Firefox[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/qr-code-image-generator/]QR Code Image Generator[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/awesome-screenshot-capture-/]Awesome Screenshot Plus - Capture, Annotate & More[/url]
+[/list]
 
 
+Thunderbird extensions that work after conversion:
+[list]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/smilie-inserter/]Smilie Inserter[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/confirm-address-5582/]Confirm-Address[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/check-domain/]Check Domain[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/address-move-button/]Address Move Button[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/display-quota/]Display Quota[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/mailmindr/]mailmindr[/url] ok but error in console
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/keyword-highlight/]Keyword Highlight[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/subswitch/]SubSwitch[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/auto-address-cleaner/]Auto Address Cleaner[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/disable-draganddrop-thunderbir/]Disable DragAndDrop (Thunderbird)[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/withattach/]withAttach[/url] partly - toolbar buttons don't show
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/attachmentextractor/]AttachmentExtractor[/url] some errors but seems to work fine
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/importexporttools/]ImportExportTools[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/signature-switch/]Signature Switch[/url]
+[/list]
 
+Thunderbird extensions that [b]do not[/b] work after conversion:
+[list]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/todays-messages/]Today's messages[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/autoarchivereloaded/]AutoarchiveReloaded[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/blinking-alert/]Blinking Alert[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/printingtools/]PrintingTools[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/remove-duplicate-messages-alte/]Remove Duplicate Messages (Alternate)[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/custom-address-sidebar/]Custom Address Sidebar[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/quicktext/]Quicktext[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/stationery/]Stationery[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/tag-toolbar/]Tag Toolbar[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/xnote/]XNote[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/ruler-bar/]Ruler Bar[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/color-folders/]Color Folders[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/folder-pane-view-switcher/]Folder Pane View Switcher[/url]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/archive-this/]Archive This[/url]
+[/list]
 
-
-
-Thunderbird:
-https://addons.mozilla.org/en-US/thunderbird/addon/todays-messages/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/smilie-inserter/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/confirm-address-5582/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/check-domain/?src=cb-dl-hotness
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/autoarchivereloaded/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/address-move-button/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/display-quota/
-ok
-
-https://addons.mozilla.org/en-US/firefox/addon/color-transform/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/mailmindr/
-ok but error in chrome://mailmindr/content/dialogs/timespaneditor.xul
-cannot read XPI
-
-https://addons.mozilla.org/en-US/thunderbird/addon/keyword-highlight/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/blinking-alert/?src=cb-dl-hotness
-error in prefs
-
-https://addons.mozilla.org/en-US/thunderbird/addon/subswitch/
-some js error but seems to work - probably only a context menu item is missing
-
-https://addons.mozilla.org/en-US/thunderbird/addon/printingtools/
-cannot read xpi
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/remove-duplicate-messages-alte/
-fail
-
-
-https://addons.mozilla.org/en-US/thunderbird/addon/auto-address-cleaner/?src=cb-dl-hotness
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/custom-address-sidebar/
-cannot read xpi
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/quicktext/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/stationery/
-fail - options don't open
-
-https://addons.mozilla.org/en-US/thunderbird/addon/tag-toolbar/
-fail - options don't open
-
-https://addons.mozilla.org/en-US/thunderbird/addon/xnote/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/ruler-bar/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/color-folders/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/disable-draganddrop-thunderbir/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/withattach/
-partly - toolbar buttons don't show
-
-https://addons.mozilla.org/en-US/thunderbird/addon/folder-pane-view-switcher/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/archive-this/
-fail
-
-https://addons.mozilla.org/en-US/thunderbird/addon/attachmentextractor/
-some errors but seems to work fine
-
-https://addons.mozilla.org/en-US/thunderbird/addon/importexporttools/
-ok
-
-https://addons.mozilla.org/en-US/thunderbird/addon/signature-switch/
-ok !
