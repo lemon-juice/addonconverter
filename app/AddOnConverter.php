@@ -70,7 +70,7 @@ class AddOnConverter {
 	 *    if no conversion was done
 	 */
 	public function convert($destDir) {
-		$modified = false;
+		$filesConverted = 0;
 		
 		$newInstallRdf = $this->convertInstallRdf($this->installRdf, $this->maxVersionStr);
 		
@@ -78,47 +78,27 @@ class AddOnConverter {
 			// write modified file
 			file_put_contents($this->convertedDir ."/install.rdf", $newInstallRdf->saveXML());
 			unset($newInstallRdf);
-			$modified = true;
+			$filesConverted++;
 		}
 		
 		
-		$filesConverted = $this->convertManifest('chrome.manifest');
+		$filesConverted += $this->convertManifest('chrome.manifest');
+		
+		$filesConverted += $this->replaceChromeURLs($this->convertChromeURLsInExt);
 
-		if ($filesConverted > 0) {
-			$modified = true;
-		}
-		
-		$filesConverted = $this->replaceChromeURLs($this->convertChromeURLsInExt);
-
-		if ($filesConverted > 0) {
-			$modified = true;
-		}
-		
 		if ($this->xulIds) {
-			$filesConverted = $this->replaceXulIds();
-		}
-
-		if ($filesConverted > 0) {
-			$modified = true;
+			$filesConverted += $this->replaceXulIds();
 		}
 		
 		if ($this->jsShortcuts) {
-			$filesConverted = $this->fixJsShortcuts();
+			$filesConverted += $this->fixJsShortcuts();
 		}
 
-		if ($filesConverted > 0) {
-			$modified = true;
-		}
-		
 		if ($this->jsKeywords) {
-			$filesConverted = $this->fixJsKeywords();
+			$filesConverted += $this->fixJsKeywords();
 		}
 
 		if ($filesConverted > 0) {
-			$modified = true;
-		}
-		
-		if ($modified) {
 			// ZIP files
 			$filename = $this->createNewFileName($this->sourceFile);
 			$destFile = "$destDir/$filename";
@@ -185,11 +165,11 @@ class AddOnConverter {
 					// maxVersion missing
 					$maxVersion = $this->installRdf->createElementNS("http://www.mozilla.org/2004/em-rdf#", "maxVersion", $maxVersionStr);
 					
-					$this->log("<a>install.rdf</a>: Added missing maxVersion");
+					$this->log("install.rdf", "Added missing maxVersion");
 					$docChanged = true;
 					
 				} elseif ($maxVersion && $maxVersion->nodeValue != $maxVersionStr) {
-					$this->log("<a>install.rdf</a>: Changed <em>maxVersion</em> from '$maxVersion->nodeValue' to '$maxVersionStr'");
+					$this->log("install.rdf", "Changed <em>maxVersion</em> from '$maxVersion->nodeValue' to '$maxVersionStr'");
 					
 					$maxVersion->nodeValue = $maxVersionStr;
 					$docChanged = true;
@@ -215,7 +195,7 @@ class AddOnConverter {
 			$tApp->appendChild($Description);
 			$topDescription->appendChild($tApp);
 			
-			$this->log("<a>install.rdf</a>: Added SeaMonkey to list of supported applications");
+			$this->log("install.rdf", "Added SeaMonkey to list of supported applications");
 			$docChanged = true;
 		}
 		
@@ -268,7 +248,7 @@ class AddOnConverter {
 
 			if ($newLine && !$this->lineExistsInManifest($newLine, $manifestContentLines)) {
 				$newManifest .= $newLine;
-				$this->log("Added new line to <a>$manifestFileName</a>: '$newLine'");
+				$this->log($manifestFileName, "Added new line: <i>$newLine</i>");
 				$isConverted = true;
 			}
 		}
@@ -410,8 +390,8 @@ class AddOnConverter {
 		return false;
 	}
 
-	protected function log($msg) {
-		$this->logMessages[] = $msg;
+	protected function log($file, $msg) {
+		$this->logMessages[$file][] = $msg;
 	}
 	
 	public function getLogMessages() {
@@ -602,7 +582,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("<a>$localname</a>: replaced chrome: URL's to those used in SeaMonkey");
+					$this->log($localname, "Replaced <i>chrome://</i> URL's to those used in SeaMonkey");
 					$changedCount++;
 				}
 			}
@@ -639,7 +619,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("<a>$localname</a>: replaced ID's to those used in SeaMonkey");
+					$this->log($localname, "Replaced ID's to those used in SeaMonkey");
 					$changedCount++;
 				}
 			}
@@ -671,7 +651,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("<a>$localname</a>: added definitions for javascript shortcuts, which are not available in SeaMonkey");
+					$this->log($localname, "Added definitions for javascript shortcuts, which are not available in SeaMonkey");
 					$changedCount++;
 				}
 			}
@@ -739,7 +719,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log("<a>$localname</a>: replaced some javascript keywords");
+					$this->log($localname, "Replaced some javascript keywords");
 					$changedCount++;
 				}
 			}

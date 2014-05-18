@@ -83,8 +83,14 @@ try {
 
 <? if ($destFile): ?>
 	<ol>
-		<? foreach ($result as $msg): ?>
-		<li><?=parseLogMsg($msg, $dirPart) ?></li>
+		<? foreach ($result as $file => $messages): ?>
+		<li><?=makeLinkToDiff($file, $dirPart) ?>
+			<ul>
+				<? foreach ($messages as $msg): ?>
+					<li><?=$msg; ?></li>
+				<? endforeach ?>
+			</ul>
+		</li>
 		<? endforeach ?>
 	</ol>
 

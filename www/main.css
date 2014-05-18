@@ -97,7 +97,7 @@ div.info .warning {
 	border: 1px dotted black;	
 }
 
-ol li {
+ol > li {
 	font-size: 85%;
 	margin: 0.5em 0;
 }
