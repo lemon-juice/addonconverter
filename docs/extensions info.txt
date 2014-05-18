@@ -59,7 +59,7 @@ https://addons.mozilla.org/en-US/thunderbird/addon/check-domain/?src=cb-dl-hotne
 ok
 
 https://addons.mozilla.org/en-US/thunderbird/addon/autoarchivereloaded/
-fail: investigate
+fail
 
 https://addons.mozilla.org/en-US/thunderbird/addon/address-move-button/
 ok
@@ -68,7 +68,7 @@ https://addons.mozilla.org/en-US/thunderbird/addon/display-quota/
 ok
 
 https://addons.mozilla.org/en-US/firefox/addon/color-transform/
-ok with Cc disabled - maybe shouldn't work in strict mode?
+ok
 
 https://addons.mozilla.org/en-US/thunderbird/addon/mailmindr/
 ok but error in chrome://mailmindr/content/dialogs/timespaneditor.xul

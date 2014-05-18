@@ -150,6 +150,10 @@ class AMOGrabber {
 			throw new Exception("Error fetching remote XPI: $error");
 		}
 		
+		if (substr($xpi, 0, 2) != 'PK') {
+			throw new Exception("The link under download button on the AMO page doesn't lead to XPI file. You may need to provide a link to the target download page or directly to the XPI file.");
+		}
+		
 		if (strlen($xpi) > $this->maxFileSize) {
 			$maxMB = round($this->maxFileSize / 1024 / 1024, 1);
 			throw new Exception("Remote XPI file too large. Maximum $maxMB MB is allowed");
