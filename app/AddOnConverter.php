@@ -649,8 +649,8 @@ class AddOnConverter {
 		// detect which shortcuts are used
 		$set = implode('|', array_keys($shortcuts));
 		
-		preg_match_all('/\b(?:' .$set. ')\b/', $contents, $matches);
-		$found = array_unique($matches[0]);
+		preg_match_all('/\b(' .$set. ')[\[.]/', $contents, $matches);
+		$found = array_unique($matches[1]);
 		
 		$definitions = "";
 		

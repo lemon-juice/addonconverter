@@ -81,11 +81,15 @@ https://addons.mozilla.org/en-US/thunderbird/addon/blinking-alert/?src=cb-dl-hot
 error in prefs
 
 https://addons.mozilla.org/en-US/thunderbird/addon/subswitch/
-partly - need more testing
+some js error but seems to work - probably only a context menu item is missing
 
 https://addons.mozilla.org/en-US/thunderbird/addon/printingtools/
 cannot read xpi
 fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/remove-duplicate-messages-alte/
+fail
+
 
 https://addons.mozilla.org/en-US/thunderbird/addon/auto-address-cleaner/?src=cb-dl-hotness
 ok
@@ -117,4 +121,10 @@ ok
 
 https://addons.mozilla.org/en-US/thunderbird/addon/withattach/
 partly - toolbar buttons don't show
+
+https://addons.mozilla.org/en-US/thunderbird/addon/folder-pane-view-switcher/
+fail
+
+https://addons.mozilla.org/en-US/thunderbird/addon/archive-this/
+fail
 
