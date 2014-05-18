@@ -59,14 +59,32 @@ emptyXPICache();
 		
 		<div>
 			<label><input type="checkbox" name="xulIds" checked="" /> replace some Thunderbird-specific IDs in xul overlay files</label>
+			<span class="help">
+				<span>?</span>
+				<span>Replaces <em>msgComposeContext</em> to <em>contentAreaContextMenu</em>.</span>
+			</span>
 		</div>
 		
 		<div>
 			<label><input type="checkbox" name="jsKeywords" checked="" /> replace some Firefox-specific keywords in js files</label>
+			<span class="help">
+				<span>?</span>
+				<span>Replaces strings:<br/>
+					<em>@mozilla.org/browser/sessionstore;1</em> to <em>@mozilla.org/suite/sessionstore;1</em><br/>
+					<em>blockedPopupOptions</em> to <em>popupNotificationMenu</em><br/>
+					<em>bookmarksMenuPopup</em> to <em>menu_BookmarksPopup</em><br/>
+					<em>menu_ToolsPopup</em> to <em>taskPopup</em><br/>
+					<em>menu_HelpPopup</em> to <em>helpPopup</em><br/>
+				</span>
+			</span>
 		</div>
 		
 		<div>
 			<label><input type="checkbox" name="jsShortcuts" checked="" /> add definitions for Firefox-specific js shortcuts (Cc, Ci, Cr, Cu)</label>
+			<span class="help">
+				<span>?</span>
+				<span>Adds <em>var</em> definitions for Cc, Ci, Cr and Cu corresponding to properies <em>classes</em>, <em>interfaces</em>, <em>results</em> and <em>utils</em> in the <em>Components</em> object respectively. It does its best not to add those definitions if they are defined as constants in the javascript file.</span>
+			</span>
 		</div>
 	</div>
 	

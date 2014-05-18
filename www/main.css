@@ -102,6 +102,35 @@ ol > li {
 	margin: 0.5em 0;
 }
 
+span.help {
+	position: relative;
+	cursor: default;
+}
+span span:first-child {
+	background-color: #0099ff;
+	color: white;
+	padding: 0 0.3em;
+	border-radius: 2px;
+}
+span.help span:nth-child(2) {
+	display: none;
+	position: absolute;
+	bottom: 1.5em;
+	left: -17em;
+	min-width: 35em;
+	background-color: #ffffcc;
+	color: black;
+	border: 1px solid #888;
+	border-radius: 4px;
+	padding: 0.3em;
+	z-index: 1000;
+}
+span.help:hover span:nth-child(2) {
+	display: inline;
+}
+
+
+
 a.download {
 	font-weight: bold;
 }
