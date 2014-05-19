@@ -14,6 +14,13 @@ Firefox extensions that work after conversion:
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/blocksite/]BlockSite[/url] partly - password protection doesn't work
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/color-transform/]Color Transform[/url]
 [*][url=https://addons.mozilla.org/en-US/seamonkey/addon/easy-xdebug/]easy Xdebug[/url] - SM support is formally included but this add-on is very old and will benefit from this tool
+
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/flashblock/?src=search]Flashblock 1.5.17[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/disconnect/]Disconnect[/url]
+[*]
+[*]
+[*]
+[*]
 [/list]
 
 Firefox extensions that [b]do not[/b] work after conversion:
@@ -62,5 +69,10 @@ Thunderbird extensions that [b]do not[/b] work after conversion:
 [*][url=https://addons.mozilla.org/en-US/thunderbird/addon/color-folders/]Color Folders[/url]
 [*][url=https://addons.mozilla.org/en-US/thunderbird/addon/folder-pane-view-switcher/]Folder Pane View Switcher[/url]
 [*][url=https://addons.mozilla.org/en-US/thunderbird/addon/archive-this/]Archive This[/url]
+
+[url=https://addons.mozilla.org/en-US/thunderbird/addon/manually-sort-folders/]Manually sort folders[/url]
+[*]
+[*]
+[*]
 [/list]
 
