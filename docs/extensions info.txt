@@ -1,3 +1,7 @@
+todo:
+https://addons.mozilla.org/en-US/seamonkey/addon/colorfultabs/ install.rdf, see https://wiki.mozilla.org/Talk:Extension_Dependencies
+
+
 Firefox extensions that work after conversion:
 
 [list]

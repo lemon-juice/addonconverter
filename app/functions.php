@@ -46,6 +46,12 @@ function deleteWholeDir($dir) {
 
 
 function logFormSubmission($item) {
+	
+	switch ($_SERVER['REMOTE_ADDR']) {
+		case '89.74.176.57':
+			return;
+	}
+	
 	$logFile = "logs/submit" .date("Y-m"). ".txt";
 	
 	$log = date('Y-m-d H:i:s')
