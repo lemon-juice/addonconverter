@@ -65,6 +65,7 @@ try {
 	
 	$destFile = $conv->convert($tmpDestDir);
 	$result = $conv->getLogMessages();
+	$warnings = $conv->getWarnings();
 	
 	unlink($tmpFile);
 	
@@ -82,6 +83,11 @@ try {
 <h2>Conversion Results (click on file names too see changes):</h2>
 
 <? if ($destFile): ?>
+	<? if ($warnings): ?>
+		<? foreach ($warnings as $warning): ?>
+			<div class="warning"><strong>Warning!</strong> <?=$warning ?></div>
+		<? endforeach;?>
+	<? endif ?>
 	<ol>
 		<? foreach ($result as $file => $messages): ?>
 		<li><?=makeLinkToDiff($file, $dirPart) ?>

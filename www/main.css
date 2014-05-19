@@ -101,6 +101,15 @@ ol > li {
 	font-size: 85%;
 	margin: 0.5em 0;
 }
+div.warning {
+	background: #ffff99;
+	border: 1px solid red;
+	border-radius: 4px;
+	padding: 1em;
+	margin: 0.5em 0;
+	color: black;
+}
+
 
 span.help {
 	position: relative;

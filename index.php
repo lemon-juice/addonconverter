@@ -83,7 +83,7 @@ emptyXPICache();
 			<label><input type="checkbox" name="jsShortcuts" checked="" /> add definitions for Firefox-specific js shortcuts (Cc, Ci, Cr, Cu)</label>
 			<span class="help">
 				<span>?</span>
-				<span>Adds <em>var</em> definitions for Cc, Ci, Cr and Cu corresponding to properies <em>classes</em>, <em>interfaces</em>, <em>results</em> and <em>utils</em> in the <em>Components</em> object respectively. It does its best not to add those definitions if they are defined as constants in the javascript file.</span>
+				<span>Adds <em>var</em> definitions for Cc, Ci, Cr and Cu corresponding to properties <em>classes</em>, <em>interfaces</em>, <em>results</em> and <em>utils</em> in the <em>Components</em> object respectively. It does its best not to add those definitions if they are defined as constants in the javascript file.</span>
 			</span>
 		</div>
 	</div>

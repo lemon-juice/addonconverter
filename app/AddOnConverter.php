@@ -18,6 +18,7 @@ class AddOnConverter {
 	protected $originalDir;
 	protected $convertedDir;
 	protected $logMessages = array();
+	protected $logWarnings = array();
 	protected $chromeURLReplacements;
 
 	/**
@@ -174,6 +175,9 @@ class AddOnConverter {
 					$maxVersion->nodeValue = $maxVersionStr;
 					$docChanged = true;
 				}
+				
+				// warning about SeaMonkey already supported
+				$this->logWarning("This add-on appears to already support SeaMonkey. It is recommended you do not use the converted version but install the original add-on. If the author has included SeaMonkey support then it is likely this converter will do more harm than good - unless you only increase maxVersion. Remember that on the <a href='https://addons.mozilla.org/en-US/seamonkey/'>AMO site</a> you can still install add-ons marked as <em>Not available for SeaMonkey x.xx</em> by clicking on the greyed-out button and pressing <em>Install Anyway</em>. If the install button is greyed-out it usually means the add-on has not been tested with the current version of SeaMonkey but is likely to work regardless.");
 				
 				break;
 			}
@@ -396,6 +400,14 @@ class AddOnConverter {
 	
 	public function getLogMessages() {
 		return $this->logMessages;
+	}
+	
+	protected function logWarning($msg) {
+		$this->logWarnings[] = $msg;
+	}
+	
+	public function getWarnings() {
+		return $this->logWarnings;
 	}
 	
 	protected function createNewFileName($sourceFile) {
