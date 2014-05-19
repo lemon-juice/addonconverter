@@ -7,6 +7,8 @@ class AddOnConverter {
 	/**
 	 * List of file extensions, in which to replace chrome URL's
 	 */
+	public $convertManifest = false;
+	public $convertChromeUrls = false;
 	public $convertChromeURLsInExt = array();
 	
 	public $xulIds = false;
@@ -82,10 +84,13 @@ class AddOnConverter {
 			$filesConverted++;
 		}
 		
+		if ($this->convertManifest) {
+			$filesConverted += $this->convertManifest('chrome.manifest');
+		}
 		
-		$filesConverted += $this->convertManifest('chrome.manifest');
-		
-		$filesConverted += $this->replaceChromeURLs($this->convertChromeURLsInExt);
+		if ($this->convertChromeUrls) {
+			$filesConverted += $this->replaceChromeURLs($this->convertChromeURLsInExt);
+		}
 
 		if ($this->xulIds) {
 			$filesConverted += $this->replaceXulIds();

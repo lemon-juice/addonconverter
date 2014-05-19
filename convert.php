@@ -50,6 +50,7 @@ try {
 	$conv = new AddOnConverter($tmpFile);
 	
 	$conv->maxVersionStr = substr(trim($_POST['maxVersion']), 0, 10);
+	$conv->convertChromeUrls = !empty($_POST['convertChromeUrls']);
 	$conv->convertChromeURLsInExt = array();
 	
 	if (isset($_POST['convertChromeExtensions'])
@@ -59,6 +60,7 @@ try {
 		$conv->convertChromeURLsInExt = $_POST['convertChromeExtensions'];
 	}
 	
+	$conv->convertManifest = !empty($_POST['convertManifest']);
 	$conv->xulIds = !empty($_POST['xulIds']);
 	$conv->jsShortcuts = !empty($_POST['jsShortcuts']);
 	$conv->jsKeywords = !empty($_POST['jsKeywords']);

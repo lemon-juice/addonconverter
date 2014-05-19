@@ -6,7 +6,7 @@ emptyXPICache();
 <? include "templates/header.php" ?>
 
 
-<form action="convert.php" method="post" enctype="multipart/form-data">
+<form action="convert.php" method="post" enctype="multipart/form-data" id="converterForm">
 	<? if (!empty($error)): ?>
 		<div class="error"><?=$error ?></div>
 	<? endif ?>
@@ -41,13 +41,13 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" checked="" disabled="" /> add SeaMonkey-specific overlays to manifest files</label>
+			<label><input type="checkbox" name="convertManifest" checked="" /> add SeaMonkey-specific overlays to manifest files</label>
 		</div>
 		
 		<div>
-			convert <em>chrome://</em> URL's in following file types:
+			<label><input type="checkbox" name="convertChromeUrls" checked="" /> convert <em>chrome://</em> URL's in following file types:</label>
 		</div>
-		<div class="checkboxes">
+		<div id="convertChromeUrlsExtensions" class="checkboxes">
 			<label><input type="checkbox" name="convertChromeExtensions[]" value="xul" checked="" /> xul</label>
 			<label><input type="checkbox" name="convertChromeExtensions[]" value="rdf" checked="" /> rdf</label>
 			<label><input type="checkbox" name="convertChromeExtensions[]" value="js" checked="" /> js</label>
