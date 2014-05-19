@@ -1,6 +1,3 @@
-todo:
-https://addons.mozilla.org/en-US/seamonkey/addon/colorfultabs/ install.rdf, see https://wiki.mozilla.org/Talk:Extension_Dependencies
-
 
 Firefox extensions that work after conversion:
 
@@ -16,6 +13,7 @@ Firefox extensions that work after conversion:
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/nosquint/]NoSquint[/url] partly
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/blocksite/]BlockSite[/url] partly - password protection doesn't work
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/color-transform/]Color Transform[/url]
+[*][url=https://addons.mozilla.org/en-US/seamonkey/addon/easy-xdebug/]easy Xdebug[/url] - SM support is formally included but this add-on is very old and will benefit from this tool
 [/list]
 
 Firefox extensions that [b]do not[/b] work after conversion:
@@ -26,6 +24,7 @@ Firefox extensions that [b]do not[/b] work after conversion:
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/lightbeam/]Lightbeam for Firefox[/url]
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/qr-code-image-generator/]QR Code Image Generator[/url]
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/awesome-screenshot-capture-/]Awesome Screenshot Plus - Capture, Annotate & More[/url]
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/easy-xdebug-with-moveable-/]easy Xdebug (with moveable icon)[/url]
 [/list]
 
 
