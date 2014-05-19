@@ -128,7 +128,7 @@ class AddOnConverter {
 	public function convertInstallRdf(DOMDocument $installRdf, $maxVersionStr) {
 		$Descriptions = $installRdf->documentElement->getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
 		
-		$topDescription = null;
+		$urnDescription = null;
 
 		foreach ($Descriptions as $d) {
 			$about = $d->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
@@ -137,47 +137,29 @@ class AddOnConverter {
 			}
 			
 			if ($about == "urn:mozilla:install-manifest") {
-				$topDescription = $d;
+				$urnDescription = $d;
 				break;
 			}
 		}
 
-		if (!$topDescription) {
+		if (!$urnDescription) {
 			return null;
 		}
 		
 		$docChanged = false;
 		$SM_exists = false;
 		
-		foreach ($topDescription->getElementsByTagName("targetApplication") as $ta) {
-			$Description = $ta->getElementsByTagName("Description")->item(0);
-			
-			if (!$Description) {
-				continue;
-			}
-			
-			$id = $Description->getElementsByTagName("id")->item(0);
+		foreach ($urnDescription->getElementsByTagName("targetApplication") as $ta) {
+			$maxVersionNode = $this->findMaxVersionNodeInInstallRdf($ta, self::SEAMONKEY_ID, $Descriptions);
 
-			if (!$id) {
-				continue;
-			}
-			
-			if ($id->nodeValue == self::SEAMONKEY_ID) {
+			if ($maxVersionNode) {
 				// change maxVersion
 				$SM_exists = true;
 				
-				$maxVersion = $Description->getElementsByTagName("maxVersion")->item(0);
-				if (!$maxVersion) {
-					// maxVersion missing
-					$maxVersion = $this->installRdf->createElementNS("http://www.mozilla.org/2004/em-rdf#", "maxVersion", $maxVersionStr);
-					
-					$this->log("install.rdf", "Added missing maxVersion");
-					$docChanged = true;
-					
-				} elseif ($maxVersion && $maxVersion->nodeValue != $maxVersionStr) {
-					$this->log("install.rdf", "Changed <em>maxVersion</em> from '$maxVersion->nodeValue' to '$maxVersionStr'");
-					
-					$maxVersion->nodeValue = $maxVersionStr;
+				if ($maxVersionNode->nodeValue != $maxVersionStr) {
+					$this->log("install.rdf", "Changed <em>maxVersion</em> from '$maxVersionNode->nodeValue' to '$maxVersionStr'");
+
+					$maxVersionNode->nodeValue = $maxVersionStr;
 					$docChanged = true;
 				}
 				
@@ -202,7 +184,7 @@ class AddOnConverter {
 			$Description->appendChild($maxVersion);
 			
 			$tApp->appendChild($Description);
-			$topDescription->appendChild($tApp);
+			$urnDescription->appendChild($tApp);
 			
 			$this->log("install.rdf", "Added SeaMonkey to list of supported applications");
 			$docChanged = true;
@@ -211,6 +193,63 @@ class AddOnConverter {
 		return $docChanged ? $installRdf : null;
 	}
 	
+	/**
+	 * Find application maxVersion node (attribute or element) references by the given
+	 * targetApplication element.
+	 * 
+	 * @param DOMElement $ta
+	 * @param string $appId app id to look for
+	 * @param DOMNodeList $Descriptions All <Description> elements in install.rdf
+	 * @return DOMNode|null
+	 */
+	private function findMaxVersionNodeInInstallRdf(DOMElement $ta, $appId, DOMNodeList $Descriptions) {
+		$resource = $ta->getAttribute("RDF:resource");
+		
+		if ($resource) {
+			// find id in Description element referenced by resource
+			$targetDescription = null;
+			
+			foreach ($Descriptions as $Description) {
+				if ($Description->getAttribute("RDF:about") == $resource) {
+					$targetDescription = $Description;
+					break;
+				}
+			}
+		
+		} else {
+			// when no resource att is present then target Description is
+			// within given targetApplication
+			$targetDescription = $ta->getElementsByTagName('Description')->item(0);
+		}
+
+		if (!$targetDescription) {
+			return null;
+		}
+		
+
+		// target Description found - try id attribute
+		$idNode = $targetDescription->getAttributeNode('em:id');
+
+		if (!$idNode) {
+			// try to find id element
+			$idNode = $targetDescription->getElementsByTagName("id")->item(0);
+		}
+
+		if ($idNode && $idNode->nodeValue == $appId) {
+			// app id is correct - find node for maxVersion
+			$maxVersionNode = $targetDescription->getAttributeNode('em:maxVersion');
+
+			if (!$maxVersionNode) {
+				// try to find id element
+				$maxVersionNode = $targetDescription->getElementsByTagName("maxVersion")->item(0);
+			}
+
+			return $maxVersionNode ? $maxVersionNode : null;
+		}
+
+		return null;
+	}
+
 	/**
 	 * Convert chrome.manifest and any included manifest files
 	 * 
