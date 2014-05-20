@@ -103,6 +103,8 @@ class AddOnConverter {
 		if ($this->jsKeywords) {
 			$filesConverted += $this->fixJsKeywords();
 		}
+		
+		$filesConverted += $this->removeMetaInfDir();
 
 		if ($filesConverted > 0) {
 			// ZIP files
@@ -819,6 +821,29 @@ class AddOnConverter {
 			$contents);
 		
 		return $contents;
+	}
+	
+	/**
+	 * @return int 1 if dir removed, 0 if META-INF was not found
+	 */
+	protected function removeMetaInfDir() {
+		$metaDir = "$this->convertedDir/META-INF";
+		
+		if (is_dir($metaDir)) {
+			foreach (scandir($metaDir) as $filename) {
+				$file = "$metaDir/$filename";
+				
+				if (is_file($file)) {
+					unlink($file);
+				}
+			}
+			
+			@rmdir($metaDir);
+			$this->log("/META-INF", "Removed META-INF folder to remove certificate check on installation");
+			return 1;
+		}
+		
+		return 0;
 	}
 
 }

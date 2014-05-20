@@ -1,3 +1,5 @@
+todo:
+"dictionary search" - chrome manifest app id for mail
 
 Firefox extensions that work after conversion:
 
