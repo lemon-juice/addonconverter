@@ -810,6 +810,12 @@ class AddOnConverter {
 			$contents = strtr($contents, $tr);
 		}
 		
+		// getBrowserSelection() is FF specific
+		$contents = preg_replace(
+			'/([^\w"\'.]){1}getBrowserSelection[\t ]*\(([^)]*)\)/',
+			'$1gContextMenu.searchSelected($2)',
+			$contents);
+		
 		return $contents;
 	}
 
