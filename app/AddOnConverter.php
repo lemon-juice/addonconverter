@@ -299,8 +299,21 @@ class AddOnConverter {
 			}
 			
 			$newManifest .= $line;
+			
+			$addLine = ($newLine && !$this->lineExistsInManifest($newLine, $manifestContentLines));
 
-			if ($newLine && !$this->lineExistsInManifest($newLine, $manifestContentLines)) {
+			if ($addLine && strpos($newLine, "chrome://navigator/content/navigator.xul")) {
+				// if chrome://navigator/content/navigatorOverlay.xul is present then
+				// chrome://navigator/content/navigator.xul should not be added
+				// - see WOT extension
+				$lookFor = str_replace("chrome://navigator/content/navigator.xul", "chrome://navigator/content/navigatorOverlay.xul", $newLine);
+				
+				if ($this->lineExistsInManifest($lookFor, $manifestContentLines)) {
+					$addLine = false;
+				}
+			}
+				
+			if ($addLine) {
 				$newManifest .= $newLine;
 				$this->log($manifestFileName, "Added new line: <i>$newLine</i>");
 				$isConverted = true;
