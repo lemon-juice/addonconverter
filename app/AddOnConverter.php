@@ -29,6 +29,8 @@ class AddOnConverter {
 	protected $installRdf;
 	
 	const SEAMONKEY_ID = '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}';
+	const FIREFOX_ID = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
+	const THUNDERBIRD_ID = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';
 	protected $minVersionStr = '2.0';
 
 	/**
@@ -63,6 +65,7 @@ class AddOnConverter {
 			'chrome://browser/content/preferences/permissions.xul' => 'chrome://communicator/content/permissions/permissionsManager.xul',
 			'chrome://browser/content/bookmarks/bookmarksPanel.xul' => 'chrome://communicator/content/bookmarks/bm-panel.xul',
 			'chrome://browser/content/places/places.xul' => 'chrome://communicator/content/bookmarks/bookmarksManager.xul',
+			'chrome://browser/content/preferences/sanitize.xul' => 'chrome://communicator/content/sanitize.xul',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 		);
 	}
@@ -651,6 +654,7 @@ class AddOnConverter {
 			if ($pathInfo->isFile() && in_array(strtolower($pathInfo->getExtension()), $extensions) && $pathInfo->getFilename() != 'install.rdf') {
 				$contents = file_get_contents((string) $pathInfo);
 				$newContents = strtr($contents, $this->chromeURLReplacements);
+				$newContents = $this->replaceAppIDsInManifest($newContents);
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
@@ -666,6 +670,28 @@ class AddOnConverter {
 		return $changedCount;
 	}
 	
+	/**
+	 * @param string $contents
+	 * @return string
+	 */
+	private function replaceAppIDsInManifest($contents) {
+		$lines = explode('\n', $contents);
+		$newContents = "";
+		
+		foreach ($lines as $line) {
+			if (!preg_match('/^\s*(overlay|override)/', $line)) {
+				$line = strtr($line, array(
+					self::FIREFOX_ID => self::SEAMONKEY_ID,
+					self::THUNDERBIRD_ID => self::SEAMONKEY_ID,
+				));
+			}
+			
+			$newContents .= $line;
+		}
+		
+		return $newContents;
+	}
+
 	/**
 	 * Replace some IDs in XUL overlay files
 	 * 
