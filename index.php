@@ -75,6 +75,8 @@ emptyXPICache();
 				<span>?</span>
 				<span>Replaces strings:<br/>
 					<em>@mozilla.org/browser/sessionstore;1</em> to <em>@mozilla.org/suite/sessionstore;1</em><br/>
+					<em>@mozilla.org/steel/application;1</em> to <em>@mozilla.org/smile/application;1</em><br/>
+					<em>@mozilla.org/fuel/application;1</em> to <em>@mozilla.org/smile/application;1</em><br/>
 					<em>blockedPopupOptions</em> to <em>popupNotificationMenu</em><br/>
 					<em>bookmarksMenuPopup</em> to <em>menu_BookmarksPopup</em><br/>
 					<em>menu_ToolsPopup</em> to <em>taskPopup</em><br/>
