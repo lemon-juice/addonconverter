@@ -78,7 +78,6 @@ emptyXPICache();
 					<em>@mozilla.org/steel/application;1</em> to <em>@mozilla.org/smile/application;1</em><br/>
 					<em>@mozilla.org/fuel/application;1</em> to <em>@mozilla.org/smile/application;1</em><br/>
 					<em>blockedPopupOptions</em> to <em>popupNotificationMenu</em><br/>
-					<em>bookmarksMenuPopup</em> to <em>menu_BookmarksPopup</em><br/>
 					<em>menu_ToolsPopup</em> to <em>taskPopup</em><br/>
 					<em>menu_HelpPopup</em> to <em>helpPopup</em><br/>
 					<em>getBrowserSelection(...)</em> to <em>ContextMenu.searchSelected(...)</em><br/>

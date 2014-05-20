@@ -798,7 +798,7 @@ class AddOnConverter {
 			'@mozilla.org/steel/application;1' => '@mozilla.org/smile/application;1',
 			'@mozilla.org/fuel/application;1' => '@mozilla.org/smile/application;1',
 			'blockedPopupOptions' => 'popupNotificationMenu',
-			'bookmarksMenuPopup' => 'menu_BookmarksPopup',
+			//'bookmarksMenuPopup' => 'menu_BookmarksPopup',
 			'menu_ToolsPopup' => 'taskPopup',
 			'menu_HelpPopup' => 'helpPopup',
 		);
