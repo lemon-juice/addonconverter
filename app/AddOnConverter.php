@@ -294,6 +294,13 @@ class AddOnConverter {
 					case 'override':
 						$newLine = $this->createNewManifestLine($trimLine);
 						break;
+					
+					default:
+						// replace application ids
+						$line = strtr($line, array(
+							self::FIREFOX_ID => self::SEAMONKEY_ID,
+							self::THUNDERBIRD_ID => self::SEAMONKEY_ID,
+						));
 				}
 			}
 			
@@ -352,7 +359,7 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * Fix appversion flag in manufest file: convert it to platformversion
+	 * Fix appversion flag in manifest file: convert it to platformversion
 	 * @param string $line
 	 * @return string
 	 */
@@ -651,10 +658,12 @@ class AddOnConverter {
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
-			if ($pathInfo->isFile() && in_array(strtolower($pathInfo->getExtension()), $extensions) && $pathInfo->getFilename() != 'install.rdf') {
+			
+			$ext = strtolower($pathInfo->getExtension());
+			
+			if ($pathInfo->isFile() && in_array($ext, $extensions) && $pathInfo->getFilename() != 'install.rdf') {
 				$contents = file_get_contents((string) $pathInfo);
 				$newContents = strtr($contents, $this->chromeURLReplacements);
-				$newContents = $this->replaceAppIDsInManifest($newContents);
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
@@ -668,28 +677,6 @@ class AddOnConverter {
 		}
 		
 		return $changedCount;
-	}
-	
-	/**
-	 * @param string $contents
-	 * @return string
-	 */
-	private function replaceAppIDsInManifest($contents) {
-		$lines = explode('\n', $contents);
-		$newContents = "";
-		
-		foreach ($lines as $line) {
-			if (!preg_match('/^\s*(overlay|override)/', $line)) {
-				$line = strtr($line, array(
-					self::FIREFOX_ID => self::SEAMONKEY_ID,
-					self::THUNDERBIRD_ID => self::SEAMONKEY_ID,
-				));
-			}
-			
-			$newContents .= $line;
-		}
-		
-		return $newContents;
 	}
 
 	/**
