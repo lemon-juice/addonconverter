@@ -55,6 +55,20 @@ div.error {
 #main.diff-page {
 	width: 93%;
 }
+
+div.footer-text {
+	margin: 2em 0 0 0;
+	border-top: 1px dotted #888;
+	padding-top: 0.7em;
+	font-size: 90%;
+	color: #444;
+	text-align: center;
+}
+div.disclaimer {
+	margin-top: 1em;
+	font-size: 85%;
+}
+
 form div {
 	margin: 0.5em 0;
 }
