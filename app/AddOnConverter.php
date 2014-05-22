@@ -69,6 +69,7 @@ class AddOnConverter {
 			'chrome://browser/content/preferences/sanitize.xul' => 'chrome://communicator/content/sanitize.xul',
 			'chrome://browser/content/nsContextMenu.js' => 'chrome://communicator/content/nsContextMenu.js',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
+			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
 		);
 	}
 	
