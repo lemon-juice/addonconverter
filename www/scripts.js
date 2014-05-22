@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	if (form) {
 		form.convertChromeUrls.addEventListener('click', toggleChromeExtensions, false);
+		form.convertManifest.addEventListener('click', toggleConvertManifest, false);
 		toggleChromeExtensions();
+		toggleConvertManifest();
 	}
 }, false);
 
@@ -16,4 +18,10 @@ function toggleChromeExtensions() {
 	for (var i=0; i<checkboxes.length; i++) {
 		checkboxes[i].disabled = disabled;
 	}
+}
+
+function toggleConvertManifest() {
+	var form = document.getElementById('converterForm');
+	
+	form.convertPageInfoChrome.disabled = !form.convertManifest.checked;
 }

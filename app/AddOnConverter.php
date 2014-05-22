@@ -10,6 +10,7 @@ class AddOnConverter {
 	public $convertManifest = false;
 	public $convertChromeUrls = false;
 	public $convertChromeURLsInExt = array();
+	public $convertPageInfoChrome = false;
 	
 	public $xulIds = false;
 	public $jsShortcuts = false;
@@ -328,6 +329,10 @@ class AddOnConverter {
 				$newManifest .= $newLine;
 				$this->log($manifestFileName, "Added new line: <i>$newLine</i>");
 				$isConverted = true;
+				
+				if (strpos($newLine, 'pageInfo.xul')) {
+					$this->logWarning("This extension attempts to make modifications to the <i>Page Info</i> dialog window. This window is a bit different from that in Firefox so it is likely these modifications may be ported incorrectly. Please check if this window looks and works correctly after installing this extension. In case of problems, you may try converting with <i>allow to port Page Info features</i> disabled.");
+				}
 			}
 		}
 		
@@ -350,6 +355,13 @@ class AddOnConverter {
 	 */
 	private function createNewManifestLine($originalLine) {
 		$convertedLine = strtr($originalLine, $this->chromeURLReplacements);
+		
+		if (!$this->convertPageInfoChrome) {
+			// restore original pageInfo chrome url
+			$convertedLine = strtr($convertedLine, array(
+				'chrome://navigator/content/pageinfo/pageInfo.xul' => 'chrome://browser/content/pageinfo/pageInfo.xul',
+			));
+		}
 		
 		preg_match('/application=(\{[^}]+\})/', $convertedLine, $matches);
 		

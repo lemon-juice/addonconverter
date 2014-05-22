@@ -46,6 +46,16 @@ emptyXPICache();
 		
 		<div>
 			<label><input type="checkbox" name="convertManifest" checked="" /> add SeaMonkey-specific overlays to manifest files</label>
+			<div class="checkboxes">
+				<label><input type="checkbox" name="convertPageInfoChrome" checked="" /> allow to port Page Info features</label>
+				
+				<span class="help">
+					<span>?</span>
+					<span>This option will port extension features into the View -&gt; Page Info window &mdash; if there are any. The Page Info window is a bit different from that in Firefox, therefore porting stuff in that window may not be fully successful. If the Page Info window is broken after installing the extension then try another conversion with this option disabled.<br/><br/>
+						Technical explanation: this feature will prevent <em>chrome://navigator/content/pageinfo/pageInfo.xul</em> from being added to chrome.manifest.
+					</span>
+				</span>
+			</div>
 		</div>
 		
 		<div>
