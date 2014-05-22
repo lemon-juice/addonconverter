@@ -66,6 +66,7 @@ class AddOnConverter {
 			'chrome://browser/content/bookmarks/bookmarksPanel.xul' => 'chrome://communicator/content/bookmarks/bm-panel.xul',
 			'chrome://browser/content/places/places.xul' => 'chrome://communicator/content/bookmarks/bookmarksManager.xul',
 			'chrome://browser/content/preferences/sanitize.xul' => 'chrome://communicator/content/sanitize.xul',
+			'chrome://browser/content/nsContextMenu.js' => 'chrome://communicator/content/nsContextMenu.js',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 		);
 	}
