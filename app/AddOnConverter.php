@@ -664,7 +664,13 @@ class AddOnConverter {
 			
 			if ($pathInfo->isFile() && in_array($ext, $extensions) && $pathInfo->getFilename() != 'install.rdf') {
 				$contents = file_get_contents((string) $pathInfo);
-				$newContents = strtr($contents, $this->chromeURLReplacements);
+				$newContents = $contents;
+				
+				if ($ext == 'xul') {
+					$newContents = $this->replaceBrowserDTD($newContents);
+				}
+				
+				$newContents = strtr($newContents, $this->chromeURLReplacements);
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
@@ -678,6 +684,25 @@ class AddOnConverter {
 		}
 		
 		return $changedCount;
+	}
+	
+	/**
+	 * Replace browser.dtd with a few other dtd definitions in ENTITY.
+	 * 
+	 * @param string $content XML
+	 * @return string changed XML
+	 */
+	private function replaceBrowserDTD($content) {
+		$content = preg_replace_callback('#<!ENTITY\s+(.+)chrome://browser/locale/browser\.dtd([^>]*)>#', function($matches) {
+			return "<!ENTITY $matches[1]chrome://global/locale/editMenuOverlay.dtd$matches[2]>\n"
+				. "<!ENTITY $matches[1]chrome://navigator/locale/tabbrowser.dtd$matches[2]>\n"
+				. "<!ENTITY $matches[1]chrome://communicator/locale/viewZoomOverlay.dtd$matches[2]>\n"
+				. "<!ENTITY $matches[1]chrome://navigator/locale/navigatorOverlay.dtd$matches[2]>\n"
+				. "<!ENTITY $matches[1]chrome://communicator/locale/contentAreaCommands.dtd$matches[2]>"
+			;
+		}, $content);
+		
+		return $content;
 	}
 
 	/**
