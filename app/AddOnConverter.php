@@ -342,7 +342,7 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * Take existing manifest line and if it contains firefox-specific data
+	 * Take existing manifest line and if it contains firefox- or thunderbird-specific data
 	 * then return new seamonkey-specific line. Otherwise, return empty string.
 	 * 
 	 * @param string $originalLine
@@ -351,8 +351,38 @@ class AddOnConverter {
 	private function createNewManifestLine($originalLine) {
 		$convertedLine = strtr($originalLine, $this->chromeURLReplacements);
 		
+		preg_match('/application=(\{[^}]+\})/', $convertedLine, $matches);
+		
+		$appId = isset($matches[1]) ? $matches[1] : null;
+		
+		if ($appId == self::FIREFOX_ID) {
+			$application = 'firefox';
+			
+		} elseif ($appId == self::THUNDERBIRD_ID) {
+			$application = 'thunderbird';
+			
+		} elseif ($appId == self::SEAMONKEY_ID) {
+			$application = 'seamonkey';
+			
+		} elseif (!$appId) {
+			// auto-detect
+			if (preg_match('#^\s*(overlay|override)\s+chrome://messenger/#', $convertedLine)) {
+				$application = 'thunderbird';
+			} else {
+				$application = 'firefox';
+			}
+		
+		} else {
+			// unknown
+			$application = null;
+		}
+		
+		if ($application && $application != 'seamonkey') {
+			$convertedLine = $this->fixManifestAppVersionLine($convertedLine, $application);
+		}
+		
+		
 		if ($convertedLine != $originalLine) {
-			$convertedLine = $this->fixManifestAppVersionLine($convertedLine);
 			return $convertedLine ."\n";
 		} else {
 			return '';
@@ -362,9 +392,10 @@ class AddOnConverter {
 	/**
 	 * Fix appversion flag in manifest file: convert it to platformversion
 	 * @param string $line
+	 * @param string $application
 	 * @return string
 	 */
-	private function fixManifestAppVersionLine($line) {
+	private function fixManifestAppVersionLine($line, $application) {
 		$segments = preg_split('/(\s+)/', trim($line), -1, PREG_SPLIT_DELIM_CAPTURE);
 		$newLine = "";
 		
@@ -373,7 +404,7 @@ class AddOnConverter {
 				$flagSegm = preg_split('/(\s*[<=>]+\s*)/', $lineSegm, 3, PREG_SPLIT_DELIM_CAPTURE);
 
 				if (isset($flagSegm[2])) {
-					$flagSegm[2] = $this->translateAppToPlatformVersion($flagSegm[2]);
+					$flagSegm[2] = $this->translateAppToPlatformVersion($flagSegm[2], $application);
 					
 					$flagSegm[0] = 'platformversion';
 					$lineSegm = implode('', $flagSegm);
@@ -381,6 +412,13 @@ class AddOnConverter {
 			}
 			
 			$newLine .= $lineSegm;
+		}
+		
+		if ($application == 'firefox') {
+			$newLine = str_replace(self::FIREFOX_ID, self::SEAMONKEY_ID, $newLine);
+			
+		} else if ($application == 'thunderbird') {
+			$newLine = str_replace(self::THUNDERBIRD_ID, self::SEAMONKEY_ID, $newLine);
 		}
 		
 		return $newLine;
@@ -391,9 +429,10 @@ class AddOnConverter {
 	 * See https://developer.mozilla.org/en-US/docs/Mozilla/Gecko/Versions
 	 * @param string $appVer app version number, may contain * at the end,
 	 *    e.g. 3.6.*
-	 * @return string
+	 * @param string $application
+	 * @return string gecko version
 	 */
-	private function translateAppToPlatformVersion($appVer) {
+	private function translateAppToPlatformVersion($appVer, $application) {
 		preg_match('/([\d.]*\d+)(.*)$/', $appVer, $matches);
 		
 		if (!isset($matches[2])) {
@@ -414,8 +453,17 @@ class AddOnConverter {
 		} elseif ($ffVer <= 2) {
 			$gecko = '1.8.1';
 			
-		} elseif ($ffVer <= 3) {
+		} elseif ($application == 'firefox' && $ffVer <= 3) {
 			$gecko = '1.9';
+			
+		} elseif ($application == 'thunderbird' && $ffVer <= 3) {
+			$gecko = '1.9.1';
+			
+		} elseif ($application == 'thunderbird' && $ffVer <= 3.1) {
+			$gecko = '1.9.2';
+			
+		} elseif ($application == 'thunderbird' && $ffVer <= 3.3) {
+			$gecko = '2';
 			
 		} elseif ($ffVer <= 3.5) {
 			$gecko = '1.9.1';
