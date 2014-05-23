@@ -68,6 +68,7 @@ class AddOnConverter {
 			'chrome://browser/content/places/places.xul' => 'chrome://communicator/content/bookmarks/bookmarksManager.xul',
 			'chrome://browser/content/preferences/sanitize.xul' => 'chrome://communicator/content/sanitize.xul',
 			'chrome://browser/content/nsContextMenu.js' => 'chrome://communicator/content/nsContextMenu.js',
+			'chrome://browser/content/utilityOverlay.js' => 'chrome://communicator/content/utilityOverlay.js',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
 		);
