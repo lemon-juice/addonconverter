@@ -992,9 +992,12 @@ class AddOnConverter {
 
 		foreach ($iterator as $pathInfo) {
 			$ext = strtolower($pathInfo->getExtension());
-			if ($pathInfo->isFile() && ($ext == 'js' || $ext == 'jsm')) {
+			$isXML = ($ext == 'xul' || $ext == 'xml');
+			
+			if ($pathInfo->isFile() && ($ext == 'js' || $ext == 'jsm' || $isXML)) {
+				
 				$contents = file_get_contents((string) $pathInfo);
-				$newContents = $this->replaceJsKeywords($contents);
+				$newContents = $this->replaceJsKeywords($contents, $isXML);
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
@@ -1012,15 +1015,42 @@ class AddOnConverter {
 	
 	/**
 	 * @param string $contents
+	 * @param bool $isXML
 	 * @return string contents with replaced keywords
 	 */
-	private function replaceJsKeywords($contents) {
+	private function replaceJsKeywords($contents, $isXML) {
+		if ($isXML) {
+			// in XML only do replacements in <script> sections
+			$segments = preg_split('#(<script[^>]*>.+?</script>)#is', $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
+			
+			$newContents = "";
+			
+			foreach ($segments as $key => $segm) {
+				if ($key & 1) {
+					// js is only in odd keys
+					$segm = $this->replaceJsKeywordsInJsString($segm);
+				}
+				
+				$newContents .= $segm;
+			}
+			
+			return $newContents;
+			
+		} else {
+			return $this->replaceJsKeywordsInJsString($contents);
+		}
+	}
+	
+	/**
+	 * @param string $contents
+	 * @return string contents with replaced keywords
+	 */
+	private function replaceJsKeywordsInJsString($contents) {
 		$replacements = array(
 			'@mozilla.org/browser/sessionstore;1' => '@mozilla.org/suite/sessionstore;1',
 			'@mozilla.org/steel/application;1' => '@mozilla.org/smile/application;1',
 			'@mozilla.org/fuel/application;1' => '@mozilla.org/smile/application;1',
 			'blockedPopupOptions' => 'popupNotificationMenu',
-			//'bookmarksMenuPopup' => 'menu_BookmarksPopup',
 			'menu_ToolsPopup' => 'taskPopup',
 			'menu_HelpPopup' => 'helpPopup',
 		);
@@ -1038,6 +1068,12 @@ class AddOnConverter {
 		$contents = preg_replace(
 			'/([^\w"\'.]){1}getBrowserSelection[\t ]*\(([^)]*)\)/',
 			'$1gContextMenu.searchSelected($2)',
+			$contents);
+		
+		// replace Application.version to fetch gecko version
+		$contents = preg_replace(
+			'/\bApplication.version\b/',
+			'Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo).platformVersion',
 			$contents);
 		
 		return $contents;
