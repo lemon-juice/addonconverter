@@ -589,7 +589,7 @@ class AddOnConverter {
 		$iterator = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
 			RecursiveIteratorIterator::SELF_FIRST);
-
+		
 		foreach ($iterator as $pathInfo) {
 			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jar') {
 				$zip = new ZipArchive;
@@ -599,21 +599,117 @@ class AddOnConverter {
 					throw new Exception("Cannot open JAR archive");
 				}
 				
-				$res = $zip->extractTo($pathInfo->getPath());
+				$path = $pathInfo->getPath();
+				$tmpPath = "$path/~jartmp";
+				mkdir($tmpPath);
+				
+				$res = $zip->extractTo($tmpPath);
 				
 				if ($res !== true) {
 					throw new Exception("Cannot extract JAR archive");
 				}
 				
+				if (!$deleteJARs) {
+					
+					$jarListFile = "$path/" . pathinfo($pathInfo->getFilename(), PATHINFO_FILENAME) . ".jarlist";
+					$this->createJarListFile($jarListFile, $tmpPath);
+				}
+				
+				$this->moveAllFiles($tmpPath, $path);
+				
+//				if (!$deleteJARs) {
+//					// create temp jarlist file that will contain a list of all
+//					// files in jar - this will be used when packaging xpi
+//					// from the extracted files
+//					$jarList = "";
+//
+//					for( $i = 0; $i < $zip->numFiles; $i++ ){ 
+//						$stat = $zip->statIndex( $i );
+//						echo $stat['name'] ."\n";
+//						$jarList .= rtrim($stat['name'], '/\\'). "\n";
+//					}
+//					
+//					$jarListFile = "$path/" . pathinfo($pathInfo->getFilename(), PATHINFO_FILENAME) . ".jarlist";
+//					file_put_contents($jarListFile, $jarList);
+//				}
+				
 				$zip->close();
 				
-				if ($deleteJARs) {
-					unlink($pathInfo->__toString());
-				}
+				
+				// delete jar file
+				unlink($pathInfo->__toString());
 			}
 		}
 	}
 	
+	/**
+	 * Create a file containing all files and folder in given dir
+	 * @param string $destFile
+	 * @param string $dir
+	 */
+	private function createJarListFile($destFile, $dir) {
+		$jarList = "";
+		
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+		
+		$dirLen = strlen($dir);
+		
+		foreach ($iterator as $pathInfo) {
+			$localname = substr($pathInfo->__toString(), $dirLen + 1);
+			
+			$jarList .= $localname . "\n";
+		}
+		
+		file_put_contents($destFile, $jarList);
+	}
+	
+	/**
+	 * Move all files from source dir to dest, deleting all source files
+	 * and folders
+	 * @param string $sourceDir
+	 * @param string $destDir
+	 */
+	private function moveAllFiles($sourceDir, $destDir) {
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($sourceDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::SELF_FIRST);
+		
+		foreach ($iterator as $name => $pathInfo) {
+			$startsAt = substr(dirname($name), strlen($sourceDir));
+			$currentDestDir = $destDir.$startsAt;
+			
+			if (!is_dir($currentDestDir)) {
+				mkdir($currentDestDir);
+			}
+			
+			if ($pathInfo->isFile()) {
+				copy((string) $name, "$currentDestDir/" . basename($name));
+			}
+		}
+		
+		// delete source
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($sourceDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
+			RecursiveIteratorIterator::CHILD_FIRST);
+
+		foreach ($iterator as $file => $fileInfo) {
+			if (strpos($file, "tmp/convert/") !== 0) {
+				exit("Unsafe file delete attempt!");
+			}
+
+			if ($fileInfo->isDir()) {
+				rmdir($file);
+
+			} else {
+				unlink($file);
+			}
+		}
+
+		rmdir($sourceDir);
+	}
+
 	/**
 	 * ZIP all directory with files and folders. Compress appropriate folders
 	 * to JARs.
@@ -623,7 +719,7 @@ class AddOnConverter {
 	 */
 	protected function zipDir($dir, $destFile) {
 		
-		$this->zipJars($dir);
+		$this->zipFilesIntoJars($dir);
 		
 		$zip = new ZipArchive;
 		$res = $zip->open($destFile, ZipArchive::CREATE);
@@ -651,51 +747,61 @@ class AddOnConverter {
 		$zip->close();
 	}
 	
-	protected function zipJars($dir) {
+	protected function zipFilesIntoJars($dir) {
 		$iterator = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
-			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jar') {
-				$jarFile = $pathInfo->__toString();
+			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jarlist') {
+				// jarlist temp file contains all files to put into jar
+				$jarListFile = $pathInfo->__toString();
+				$jarList = file($jarListFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 				
-				// zip all files and folders in this dir except for the jar
 				$path = $pathInfo->getPath();
-				unlink($jarFile);
+				unlink($jarListFile);
+				
+				// zip all listed files and folders
+				$jarFile = "$path/" . pathinfo($jarListFile, PATHINFO_FILENAME) . ".jar";
 				
 				$zip = new ZipArchive;
 				$zip->open($jarFile, ZipArchive::CREATE);
 				
-				$iterator = new RecursiveIteratorIterator(
-					new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
-					RecursiveIteratorIterator::SELF_FIRST);
+				foreach ($jarList as $localname) {
+					$localname = trim($localname);
+					
+					if ($localname === '') {
+						continue;
+					}
+					
+					$fileToJar = "$path/$localname";
 
-				$dirLen = strlen($path);
-
-				foreach ($iterator as $pathInfo) {
-					$localname = substr($pathInfo->__toString(), $dirLen + 1);
-
-					if ($pathInfo->isDir()) {
+					if (is_dir($fileToJar)) {
 						$zip->addEmptyDir($localname);
 					} else {
-						$zip->addFile($pathInfo->__toString(), $localname);
+						$zip->addFile($fileToJar, $localname);
 					}
 				}
 				
 				$zip->close();
 				
 				// delete jar'ed files recursively
-				$iterator = new RecursiveIteratorIterator(
+				$iterator2 = new RecursiveIteratorIterator(
 					new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS),
 					RecursiveIteratorIterator::CHILD_FIRST);
 				
-				foreach ($iterator as $filename => $fileInfo) {
-					if ($fileInfo->isDir()) {
-						rmdir($filename);
+				$dirLen = strlen($path);
+				
+				foreach ($iterator2 as $filename => $fileInfo) {
+					$localname = substr($fileInfo->__toString(), $dirLen + 1);
 					
-					} elseif ($filename != $jarFile) {
-						unlink($filename);
+					if (in_array($localname, $jarList)) {
+						if ($fileInfo->isDir()) {
+							rmdir($filename);
+
+						} elseif ($filename != $jarListFile) {
+							unlink($filename);
+						}
 					}
 				}
 			}
