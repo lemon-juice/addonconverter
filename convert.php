@@ -83,7 +83,7 @@ try {
 
 <? include "templates/header.php" ?>
 
-<h2>Conversion Results (click on file names too see changes):</h2>
+<h2>Conversion Results (click on file names to see changes):</h2>
 
 <? if ($destFile): ?>
 	<? if ($warnings): ?>

@@ -203,7 +203,7 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * Find application maxVersion node (attribute or element) references by the given
+	 * Find application maxVersion node (attribute or element) referenced by the given
 	 * targetApplication element.
 	 * 
 	 * @param DOMElement $ta
@@ -214,46 +214,52 @@ class AddOnConverter {
 	private function findMaxVersionNodeInInstallRdf(DOMElement $ta, $appId, DOMNodeList $Descriptions) {
 		$resource = $ta->getAttribute("RDF:resource");
 		
+		$targetDescriptions = array();
+		
 		if ($resource) {
 			// find id in Description element referenced by resource
 			$targetDescription = null;
 			
 			foreach ($Descriptions as $Description) {
 				if ($Description->getAttribute("RDF:about") == $resource) {
-					$targetDescription = $Description;
+					$targetDescriptions[0] = $Description;
 					break;
 				}
 			}
 		
 		} else {
-			// when no resource att is present then target Description is
+			// when no resource attr is present then target Description is
 			// within given targetApplication
-			$targetDescription = $ta->getElementsByTagName('Description')->item(0);
+			$targetDescriptions = $ta->getElementsByTagName('Description');
 		}
 
-		if (!$targetDescription) {
+		if (!$targetDescriptions ||
+			(!is_array($targetDescriptions) && $targetDescriptions->length == 0)) {
 			return null;
 		}
 		
 
-		// target Description found - try id attribute
-		$idNode = $targetDescription->getAttributeNode('em:id');
+		// target Descriptions found
+		foreach ($targetDescriptions as $targetDescription) {
+			// try id attribute
+			$idNode = $targetDescription->getAttributeNode('em:id');
 
-		if (!$idNode) {
-			// try to find id element
-			$idNode = $targetDescription->getElementsByTagName("id")->item(0);
-		}
-
-		if ($idNode && $idNode->nodeValue == $appId) {
-			// app id is correct - find node for maxVersion
-			$maxVersionNode = $targetDescription->getAttributeNode('em:maxVersion');
-
-			if (!$maxVersionNode) {
+			if (!$idNode) {
 				// try to find id element
-				$maxVersionNode = $targetDescription->getElementsByTagName("maxVersion")->item(0);
+				$idNode = $targetDescription->getElementsByTagName("id")->item(0);
 			}
 
-			return $maxVersionNode ? $maxVersionNode : null;
+			if ($idNode && $idNode->nodeValue == $appId) {
+				// app id is correct - find node for maxVersion
+				$maxVersionNode = $targetDescription->getAttributeNode('em:maxVersion');
+
+				if (!$maxVersionNode) {
+					// try to find id element
+					$maxVersionNode = $targetDescription->getElementsByTagName("maxVersion")->item(0);
+				}
+
+				return $maxVersionNode ? $maxVersionNode : null;
+			}
 		}
 
 		return null;
