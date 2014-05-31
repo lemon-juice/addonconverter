@@ -886,6 +886,20 @@ class AddOnConverter {
 	 */
 	protected function replaceXulIds() {
 		
+		$ids = array(
+			'menu_ToolsPopup' => 'taskPopup',
+			'menu_HelpPopup' => 'helpPopup',
+			'msgComposeContext' => 'contentAreaContextMenu',
+		);
+		
+		$replacements = array();
+		
+		foreach ($ids as $from => $to) {
+			$replacements["'".$from."'"] = "'".$to."'";
+			$replacements['"'.$from.'"'] = '"'.$to.'"';
+		}
+
+		
 		$changedCount = 0;
 		$dirLen = strlen($this->convertedDir);
 		
@@ -897,10 +911,7 @@ class AddOnConverter {
 			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'xul') {
 				
 				$contents = file_get_contents((string) $pathInfo);
-				$newContents = strtr($contents, array(
-					"'msgComposeContext'" => "'contentAreaContextMenu'",
-					'"msgComposeContext"' => '"contentAreaContextMenu"',
-				));
+				$newContents = strtr($contents, $replacements);
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
