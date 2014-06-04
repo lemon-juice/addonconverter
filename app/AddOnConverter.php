@@ -70,6 +70,7 @@ class AddOnConverter {
 			'chrome://browser/content/nsContextMenu.js' => 'chrome://communicator/content/nsContextMenu.js',
 			'chrome://browser/content/utilityOverlay.js' => 'chrome://communicator/content/utilityOverlay.js',
 			'chrome://browser/content/history/history-panel.xul' => 'chrome://communicator/content/history/history-panel.xul',
+			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
 		);
