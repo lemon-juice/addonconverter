@@ -1091,7 +1091,7 @@ class AddOnConverter {
 		
 		// replace Application.version to fetch gecko version
 		$contents = preg_replace(
-			'/\bApplication.version\b/',
+			'/\bApplication\.version\b/',
 			'Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo).platformVersion',
 			$contents);
 		
