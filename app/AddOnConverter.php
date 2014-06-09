@@ -1095,6 +1095,21 @@ class AddOnConverter {
 			'gBrowser.tabs',
 			$contents);
 		
+		$contents = preg_replace(
+			'/\bgPrefService\b/',
+			'Services.prefs',
+			$contents);
+		
+		$contents = preg_replace(
+			'/\bundoCloseTab\(\)/',
+			'gBrowser.restoreTab(0)',
+			$contents);
+		
+		$contents = preg_replace(
+			'/\bundoCloseTab\(/',
+			'gBrowser.restoreTab(',
+			$contents);
+		
 		return $contents;
 	}
 	
