@@ -15,6 +15,7 @@ class AddOnConverter {
 	public $xulIds = false;
 	public $jsShortcuts = false;
 	public $jsKeywords = false;
+	public $replaceEntities = false;
 	// end config.
 
 	protected $sourceFile;
@@ -111,6 +112,11 @@ class AddOnConverter {
 		
 		if ($this->jsShortcuts) {
 			$filesConverted += $this->fixJsShortcuts();
+		}
+		
+		if ($this->replaceEntities) {
+			$er = new EntityReplacer($this);
+			$filesConverted += $er->replaceEntities();
 		}
 
 		if ($this->jsKeywords) {
@@ -543,7 +549,7 @@ class AddOnConverter {
 		return false;
 	}
 
-	protected function log($file, $msg) {
+	public function log($file, $msg) {
 		$this->logMessages[$file][] = $msg;
 	}
 	
@@ -551,7 +557,7 @@ class AddOnConverter {
 		return $this->logMessages;
 	}
 	
-	protected function logWarning($msg) {
+	public function logWarning($msg) {
 		$this->logWarnings[] = $msg;
 	}
 	
@@ -559,6 +565,10 @@ class AddOnConverter {
 		return $this->logWarnings;
 	}
 	
+	public function getConvertedDir() {
+		return $this->convertedDir;
+	}
+
 	protected function createNewFileName($sourceFile) {
 		$segm = pathinfo($sourceFile);
 		
@@ -899,7 +909,8 @@ class AddOnConverter {
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
-			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'xul') {
+			$ext = strtolower($pathInfo->getExtension());
+			if ($pathInfo->isFile() && ($ext == 'xul' || $ext == 'xml')) {
 				
 				$contents = file_get_contents((string) $pathInfo);
 				$newContents = strtr($contents, $replacements);
@@ -1095,19 +1106,21 @@ class AddOnConverter {
 			'gBrowser.tabs',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/undo-closed-tabs-button/
 		$contents = preg_replace(
 			'/\bgPrefService\b/',
 			'Services.prefs',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/undo-closed-tabs-button/
 		$contents = preg_replace(
-			'/\bundoCloseTab\(\)/',
-			'gBrowser.restoreTab(0)',
+			'/(?<![\w\.])undoCloseTab\(\)/',  // (?<!) = negative lookbehind
+			'gBrowser.undoCloseTab(0)',
 			$contents);
 		
 		$contents = preg_replace(
-			'/\bundoCloseTab\(/',
-			'gBrowser.restoreTab(',
+			'/(?<![\w\.])undoCloseTab\(/',
+			'gBrowser.undoCloseTab(',
 			$contents);
 		
 		return $contents;

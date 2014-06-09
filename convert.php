@@ -64,6 +64,7 @@ try {
 	$conv->convertPageInfoChrome = !empty($_POST['convertPageInfoChrome']);
 	$conv->xulIds = !empty($_POST['xulIds']);
 	$conv->jsShortcuts = !empty($_POST['jsShortcuts']);
+	$conv->replaceEntities = !empty($_POST['replaceEntities']);
 	$conv->jsKeywords = !empty($_POST['jsKeywords']);
 	
 	$destFile = $conv->convert($tmpDestDir);

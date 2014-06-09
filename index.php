@@ -72,7 +72,7 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="xulIds" checked="" /> replace some Thunderbird- and Firefox-specific IDs in xul overlay files</label>
+			<label><input type="checkbox" name="xulIds" checked="" /> replace some Thunderbird- and Firefox-specific IDs in xul and xml files</label>
 			<span class="help">
 				<span>?</span>
 				<span>Replaces:<br/>
@@ -97,6 +97,10 @@ emptyXPICache();
 					<em>getBrowserSelection(...)</em> to <em>ContextMenu.searchSelected(...)</em><br/>
 				</span>
 			</span>
+		</div>
+		
+		<div>
+			<label><input type="checkbox" name="replaceEntities" checked="" /> replace some Firefox-specific entities with plain text</label>
 		</div>
 		
 		<div>
