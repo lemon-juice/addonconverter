@@ -16,12 +16,12 @@ Firefox extensions that work after conversion:
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/blocksite/]BlockSite[/url] partly - password protection doesn't work
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/color-transform/]Color Transform[/url]
 [*][url=https://addons.mozilla.org/en-US/seamonkey/addon/easy-xdebug/]easy Xdebug[/url] - SM support is formally included but this add-on is very old and will benefit from this tool
-
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/flashblock/?src=search]Flashblock 1.5.17[/url]
 [*][url=https://addons.mozilla.org/en-US/firefox/addon/disconnect/]Disconnect[/url]
-[*]
-[*]
-[*]
+
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/menu-icons-plus/]Menu Icons Plus[/url] 3.0 - works but because menu items in Firefox don't always overlap with those in SM not all of them will get an icon
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/menu-mod/]Menu Mod[/url] 2.2 - almost: option to display menus as one letter doesn't work; an error in console shows up - test if this addon doesn't break anything else
+[*][url=https://addons.mozilla.org/en-US/firefox/addon/konquefox/]Konquefox 1.8.2[/url]
 [*]
 [/list]
 
@@ -72,8 +72,8 @@ Thunderbird extensions that [b]do not[/b] work after conversion:
 [*][url=https://addons.mozilla.org/en-US/thunderbird/addon/folder-pane-view-switcher/]Folder Pane View Switcher[/url]
 [*][url=https://addons.mozilla.org/en-US/thunderbird/addon/archive-this/]Archive This[/url]
 
-[url=https://addons.mozilla.org/en-US/thunderbird/addon/manually-sort-folders/]Manually sort folders[/url]
-[*]
+[*][url=https://addons.mozilla.org/en-US/thunderbird/addon/manually-sort-folders/]Manually sort folders[/url]
+
 [*]
 [*]
 [/list]

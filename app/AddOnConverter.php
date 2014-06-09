@@ -73,6 +73,10 @@ class AddOnConverter {
 			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
+			// @TODO: check which of these entities are worth replacing in xul files
+//			'&options.title;' => 'Options',
+//			'&saveChanges.label;' => 'Save changes',
+//			'&viewCustomizeToolbar.label;' => 'Customize toolbar',
 		);
 	}
 	
@@ -304,6 +308,7 @@ class AddOnConverter {
 
 					case 'overlay':
 					case 'override':
+					case 'style':
 						$newLine = $this->createNewManifestLine($trimLine);
 						break;
 					
@@ -388,7 +393,7 @@ class AddOnConverter {
 			
 		} elseif (!$appId) {
 			// auto-detect
-			if (preg_match('#^\s*(overlay|override)\s+chrome://messenger/#', $convertedLine)) {
+			if (preg_match('#^\s*(overlay|override|style)\s+chrome://messenger/#', $convertedLine)) {
 				$application = 'thunderbird';
 			} else {
 				$application = 'firefox';
@@ -624,22 +629,6 @@ class AddOnConverter {
 				}
 				
 				$this->moveAllFiles($tmpPath, $path);
-				
-//				if (!$deleteJARs) {
-//					// create temp jarlist file that will contain a list of all
-//					// files in jar - this will be used when packaging xpi
-//					// from the extracted files
-//					$jarList = "";
-//
-//					for( $i = 0; $i < $zip->numFiles; $i++ ){ 
-//						$stat = $zip->statIndex( $i );
-//						echo $stat['name'] ."\n";
-//						$jarList .= rtrim($stat['name'], '/\\'). "\n";
-//					}
-//					
-//					$jarListFile = "$path/" . pathinfo($pathInfo->getFilename(), PATHINFO_FILENAME) . ".jarlist";
-//					file_put_contents($jarListFile, $jarList);
-//				}
 				
 				$zip->close();
 				
@@ -1093,6 +1082,17 @@ class AddOnConverter {
 		$contents = preg_replace(
 			'/\bApplication\.version\b/',
 			'Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo).platformVersion',
+			$contents);
+		
+		// replace other stuff
+		$contents = preg_replace(
+			'/document\.getElementById\(["\']tabContextMenu["\']\)/',
+			'document.getAnonymousElementByAttribute(document.getElementById("content"), "anonid", "tabContextMenu")',
+			$contents);
+		
+		$contents = preg_replace(
+			'/\bgBrowser\.visibleTabs\b/',
+			'gBrowser.tabs',
 			$contents);
 		
 		return $contents;
