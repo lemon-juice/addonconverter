@@ -74,10 +74,6 @@ class AddOnConverter {
 			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
-			// @TODO: check which of these entities are worth replacing in xul files
-//			'&options.title;' => 'Options',
-//			'&saveChanges.label;' => 'Save changes',
-//			'&viewCustomizeToolbar.label;' => 'Customize toolbar',
 		);
 	}
 	

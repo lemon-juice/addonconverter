@@ -11,6 +11,10 @@ class EntityReplacer {
 		
 		$this->entityReplacements = array(
 			'menuRestoreAllTabs.label' => 'Restore All Tabs',
+			// @TODO: check which of these entities are worth replacing
+//			'options.title' => 'Options',
+//			'saveChanges.label' => 'Save changes',
+//			'viewCustomizeToolbar.label' => 'Customize toolbar',
 		);
 		
 		foreach ($this->entityReplacements as $key => $replacement) {
