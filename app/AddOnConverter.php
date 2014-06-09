@@ -1034,7 +1034,10 @@ class AddOnConverter {
 	 * @return string contents with replaced keywords
 	 */
 	private function replaceJsKeywords($contents, $isXML) {
-		if ($isXML) {
+		if (0 && $isXML) {
+			// for the moment we disable this because js can occur within
+			// XML attributes and we don't want to miss that
+			
 			// in XML only do replacements in <script> sections
 			$segments = preg_split('#(<script[^>]*>.+?</script>)#is', $contents, -1, PREG_SPLIT_DELIM_CAPTURE);
 			
