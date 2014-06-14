@@ -74,6 +74,7 @@ class AddOnConverter {
 			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
+			//'chrome://browser/locale/preferences/cookies.dtd' => 'chrome://communicator/locale/permissions/cookieViewer.dtd',
 		);
 	}
 	

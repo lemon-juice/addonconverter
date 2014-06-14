@@ -11,6 +11,9 @@ class EntityReplacer {
 		
 		$this->entityReplacements = array(
 			'menuRestoreAllTabs.label' => 'Restore All Tabs',
+			// https://addons.mozilla.org/en-US/firefox/addon/cookie-monster/ :
+			'cookiepermissionstitle' => 'Exceptions - Cookies',
+			'cookiepermissionstext' => 'You can specify which websites are always or never allowed to use cookies.  Type the exact address of the site you want to manage and then click Block, Allow for Session, or Allow.',
 			// @TODO: check which of these entities are worth replacing
 //			'options.title' => 'Options',
 //			'saveChanges.label' => 'Save changes',
@@ -18,7 +21,9 @@ class EntityReplacer {
 		);
 		
 		foreach ($this->entityReplacements as $key => $replacement) {
-			$this->fullEntityReplacements["&$key;"] = $replacement;
+			if (strpos($key, '.')) {
+				$this->fullEntityReplacements["&$key;"] = $replacement;
+			}
 		}
 	}
 	
