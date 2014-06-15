@@ -1192,6 +1192,7 @@ class AddOnConverter {
 			'blockedPopupOptions' => 'popupNotificationMenu',
 			'menu_ToolsPopup' => 'taskPopup',
 			'menu_HelpPopup' => 'helpPopup',
+			'addon-bar' => 'status-bar',
 		);
 		
 		foreach ($replacements as $from => $to) {
