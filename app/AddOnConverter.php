@@ -1123,6 +1123,12 @@ class AddOnConverter {
 			'gBrowser.undoCloseTab(',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/removetabs/
+		$contents = preg_replace(
+			'/(?<![\w\.])gHomeButton.getHomePage\(\)/',
+			'Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getComplexValue("browser.startup.homepage", Components.interfaces.nsISupportsString).data',
+			$contents);
+		
 		return $contents;
 	}
 	
