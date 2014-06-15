@@ -23,7 +23,8 @@ class AddOnConverter {
 	protected $convertedDir;
 	protected $logMessages = array();
 	protected $logWarnings = array();
-	protected $chromeURLReplacements;
+	protected $chromeURLReplacements = array();
+	protected $missingChromeURLs = array();
 
 	/**
 	 * @var DOMDocument
@@ -33,6 +34,9 @@ class AddOnConverter {
 	const SEAMONKEY_ID = '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}';
 	const FIREFOX_ID = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
 	const THUNDERBIRD_ID = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';
+	
+	const MISSING_FILES_DIR = 'app/missing_files';
+
 	protected $minVersionStr = '2.0';
 
 	/**
@@ -76,6 +80,15 @@ class AddOnConverter {
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
 			//'chrome://browser/locale/preferences/cookies.dtd' => 'chrome://communicator/locale/permissions/cookieViewer.dtd',
 		);
+
+		
+		foreach (scandir(self::MISSING_FILES_DIR) as $filename) {
+			$file = self::MISSING_FILES_DIR . "/$filename";
+			
+			if ($filename[0] != '.' && is_file($file)) {
+				$this->missingChromeURLs[$filename] = 'chrome://' .str_replace('+', '/', $filename);
+			}
+		}
 	}
 	
 	/**
@@ -757,8 +770,8 @@ class AddOnConverter {
 			RecursiveIteratorIterator::SELF_FIRST);
 
 		foreach ($iterator as $pathInfo) {
-			if ($pathInfo->isFile() && strtolower($pathInfo->getExtension()) == 'jarlist') {
-				// jarlist temp file contains all files to put into jar
+			if ($pathInfo->isFile() && $pathInfo->getExtension() == 'jarlist') {
+				// jarlist temp file contains all files to be put into jar
 				$jarListFile = $pathInfo->__toString();
 				$jarList = file($jarListFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 				
@@ -782,6 +795,26 @@ class AddOnConverter {
 
 					if (is_dir($fileToJar)) {
 						$zip->addEmptyDir($localname);
+						
+						$extraDir = "$fileToJar/addonconverter";
+						
+						if (is_dir($extraDir)) {
+							// zip extra directory added to the archive by this converter -
+							// it is not included in .jarlist.
+							$zip->addEmptyDir("$localname/addonconverter");
+							$jarList[] = "$localname/addonconverter";
+							
+							foreach (scandir($extraDir) as $extraFilename) {
+								$extraFile = "$extraDir/$extraFilename";
+								
+								if ($extraFilename[0] != '.' && is_file($extraFile)) {
+									$zip->addFile("$extraDir/$extraFilename", "$localname/addonconverter/$extraFilename");
+									$jarList[] = "$localname/addonconverter/$extraFilename";
+								}
+							}
+							
+						}
+						
 					} else {
 						$zip->addFile($fileToJar, $localname);
 					}
@@ -835,6 +868,8 @@ class AddOnConverter {
 			$ext = strtolower($pathInfo->getExtension());
 			
 			if ($pathInfo->isFile() && in_array($ext, $extensions) && $pathInfo->getFilename() != 'install.rdf') {
+				
+				$fileChanged = false;
 				$contents = file_get_contents((string) $pathInfo);
 				$newContents = $contents;
 				
@@ -843,13 +878,38 @@ class AddOnConverter {
 				}
 				
 				$newContents = strtr($newContents, $this->chromeURLReplacements);
+				$localname = substr($pathInfo->__toString(), $dirLen + 1);
 				
 				if ($contents !== $newContents) {
-					file_put_contents((string) $pathInfo, $newContents);
-					
-					$localname = substr($pathInfo->__toString(), $dirLen + 1);
+					$fileChanged = true;
 					
 					$this->log($localname, "Replaced <i>chrome://</i> URL's to those used in SeaMonkey");
+				}
+				
+				// replace chrome URLs that have no equivalent in SM by including the
+				// missing file in the modded extension and pointing the chrome URL
+				// to it
+				foreach ($this->missingChromeURLs as $filename => $url) {
+					
+					$newUrlData = $this->createChromeURLForMissingFile($url);
+					
+					if (!$newUrlData) {
+						continue;
+					}
+					
+					
+					$newContents = str_replace($url, $newUrlData['chromeURL'], $newContents, $count);
+					
+					if ($count > 0) {
+						$fileChanged = true;
+						$this->includeMissingFile($filename, $newUrlData['contentDir']);
+						
+						$this->log($localname, "Included missing file in SeaMonkey for <i>$url</i>");
+					}
+				}
+				
+				if ($fileChanged) {
+					file_put_contents((string) $pathInfo, $newContents);
 					$changedCount++;
 				}
 			}
@@ -875,6 +935,66 @@ class AddOnConverter {
 		}, $content);
 		
 		return $content;
+	}
+	
+	/**
+	 * Create chrome:// URL for the given file to be included in the modded add-on
+	 * 
+	 * @param string $oldChromeURL
+	 * @return array|NULL chromeURL and contentDir
+	 */
+	private function createChromeURLForMissingFile($oldChromeURL) {
+		// get content dir from manufest
+		$fp = fopen($this->convertedDir ."/chrome.manifest", "rb");
+		$chromeURL = null;
+		
+		while (($line = fgets($fp, 4096)) !== false) {
+			$trimLine = trim($line);
+			
+			if ($trimLine && $trimLine[0] != '#') {
+				$segm = preg_split('/\s+/', $trimLine);
+
+				if ($segm[0] == 'content') {
+					// example:
+					// content cookiemonster jar:chrome/cookiemonster.jar!/content/
+					
+					// remove jar:
+					$contentDir = preg_replace('#^jar:#', '', $segm[2]);
+					
+					// remove /filename.jar!/
+					$contentDir = trim(preg_replace('#/[^/]+?\.jar!/#', '/', $contentDir), '/');
+					
+					$filename = substr(strrchr($oldChromeURL, '/'), 1);
+					$chromeURL = "chrome://$segm[1]/content/addonconverter/$filename";
+					
+					return array(
+						'chromeURL' => $chromeURL,
+						'contentDir' => $contentDir,
+					);
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Include the missing file in the modded add-on
+	 * 
+	 * @param string $filename File in the missing files directory
+	 * @param string $contentDir Destination directory within extracted archive
+	 */
+	private function includeMissingFile($filename, $contentDir) {
+		$destDir = $this->convertedDir ."/$contentDir/addonconverter";
+		
+		if (!is_dir($destDir)) {
+			mkdir($destDir);
+		}
+		
+		$destFilename = substr(strrchr($filename, '+'), 1);
+		$destFile = "$destDir/$destFilename";
+		
+		copy(self::MISSING_FILES_DIR . "/$filename", $destFile);
 	}
 
 	/**
