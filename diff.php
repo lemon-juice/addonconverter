@@ -27,7 +27,7 @@ try {
 	$origFile = "$dir/original/$file";
 	$convFile = "$dir/converted/$file";
 	
-	if (!is_file($origFile) || !is_file($convFile)) {
+	if (!is_file($origFile) && !is_file($convFile)) {
 		throw new Exception("Cannot find file");
 	}
 	
@@ -43,14 +43,22 @@ try {
 		$content1 = trim($doc->saveXML());
 		
 	} else {
-		$content1 = strtr(trim(file_get_contents($origFile)), array(
-			"\r\n" => "\n",
-		));
+		if (is_file($origFile)) {
+			$content1 = strtr(trim(file_get_contents($origFile)), array(
+				"\r\n" => "\n",
+			));
+		} else {
+			$content1 = "";
+		}
 	}
 	
-	$content2 = strtr(trim(file_get_contents($convFile)), array(
-		"\r\n" => "\n",
-	));
+	if (is_file($convFile)) {
+		$content2 = strtr(trim(file_get_contents($convFile)), array(
+			"\r\n" => "\n",
+		));
+	} else {
+		$content2 = "";
+	}
 	
 	$diff = new FineDiff($content1, $content2, FineDiff::$paragraphGranularity);
 	

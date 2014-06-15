@@ -994,7 +994,14 @@ class AddOnConverter {
 		$destFilename = substr(strrchr($filename, '+'), 1);
 		$destFile = "$destDir/$destFilename";
 		
-		copy(self::MISSING_FILES_DIR . "/$filename", $destFile);
+		if (!is_file($destFile)) {
+			copy(self::MISSING_FILES_DIR . "/$filename", $destFile);
+
+			$dirLen = strlen($this->convertedDir);
+			$localname = substr($destFile, $dirLen + 1);
+
+			$this->log($localname, "New file");
+		}
 	}
 
 	/**
