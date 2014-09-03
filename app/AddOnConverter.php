@@ -329,6 +329,13 @@ class AddOnConverter {
 						$newLine = $this->createNewManifestLine($trimLine);
 						break;
 					
+					case 'binary-component':
+					case 'interfaces':
+					case 'component':
+						// for now we guess this is firefox extension (ideally, we should
+						// have detected whether it's Fx or TB)
+						$newLine = $this->fixManifestAppVersionLine($trimLine, 'firefox');
+					
 					default:
 						// replace application ids
 						$line = strtr($line, array(
