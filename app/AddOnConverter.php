@@ -334,7 +334,7 @@ class AddOnConverter {
 					case 'component':
 						// for now we guess this is firefox extension (ideally, we should
 						// have detected whether it's Fx or TB)
-						$newLine = $this->fixManifestAppVersionLine($trimLine, 'firefox');
+						$newLine = $this->fixManifestAppVersionLine($line, 'firefox') . "\n";
 					
 					default:
 						// replace application ids
