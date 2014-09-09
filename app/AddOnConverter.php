@@ -953,7 +953,12 @@ class AddOnConverter {
 	 */
 	private function createChromeURLForMissingFile($oldChromeURL) {
 		// get content dir from manufest
-		$fp = fopen($this->convertedDir ."/chrome.manifest", "rb");
+		$fp = @fopen($this->convertedDir ."/chrome.manifest", "rb");
+		
+		if ($fp === false) {
+			return null;
+		}
+		
 		$chromeURL = null;
 		
 		while (($line = fgets($fp, 4096)) !== false) {
