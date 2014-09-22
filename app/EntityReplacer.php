@@ -11,6 +11,11 @@ class EntityReplacer {
 		
 		$this->entityReplacements = array(
 			'menuRestoreAllTabs.label' => 'Restore All Tabs',
+			
+			// https://addons.mozilla.org/en-US/firefox/addon/pagesaver/
+			'saveTo.label' => 'Save files to',
+			'chooseFolderWin.label' => 'Browse…',
+			
 			// https://addons.mozilla.org/en-US/firefox/addon/cookie-monster/ :
 //			'cookiepermissionstitle' => 'Exceptions - Cookies',
 //			'cookiepermissionstext' => 'You can specify which websites are always or never allowed to use cookies.  Type the exact address of the site you want to manage and then click Block, Allow for Session, or Allow.',
