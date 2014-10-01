@@ -121,7 +121,7 @@ class AddOnConverter {
 			$filesConverted += $this->replaceXulIds();
 		}
 		
-		if ($this->jsShortcuts) {
+		if ($this->jsShortcuts && !$this->isBootstrapped($this->installRdf)) {
 			$filesConverted += $this->fixJsShortcuts();
 		}
 		
@@ -158,21 +158,10 @@ class AddOnConverter {
 	 * @return DOMDocument|null NULL if document was not changed
 	 */
 	public function convertInstallRdf(DOMDocument $installRdf, $maxVersionStr) {
-		$Descriptions = $installRdf->documentElement->getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
 		
-		$urnDescription = null;
-
-		foreach ($Descriptions as $d) {
-			$about = $d->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
-			if (!$about) {
-				$about = $d->getAttribute("about");
-			}
-			
-			if ($about == "urn:mozilla:install-manifest") {
-				$urnDescription = $d;
-				break;
-			}
-		}
+		$allDescriptions = $this->getDescriptionSFromInstallRdf($installRdf);
+		$urnDescription = $allDescriptions['urnDescription'];
+		$Descriptions = $allDescriptions['Descriptions'];
 
 		if (!$urnDescription) {
 			return null;
@@ -224,6 +213,63 @@ class AddOnConverter {
 		
 		return $docChanged ? $installRdf : null;
 	}
+	
+	/**
+	 * Get the main description from install.rdf:
+	 * <Description about="urn:mozilla:install-manifest">
+	 * @param DOMDocument $installRdf
+	 * @return array urlDescription: DOMNode|null The urn Description node.
+	 *   Descriptions: DOMNodeList All Description nodes.
+	 */
+	protected function getDescriptionSFromInstallRdf(DOMDocument $installRdf) {
+		$Descriptions = $installRdf->documentElement->getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
+		
+		$urnDescription = null;
+
+		foreach ($Descriptions as $d) {
+			$about = $d->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
+			if (!$about) {
+				$about = $d->getAttribute("about");
+			}
+			
+			if ($about == "urn:mozilla:install-manifest") {
+				$urnDescription = $d;
+				break;
+			}
+		}
+		
+		return array(
+			'urnDescription' => $urnDescription,
+			'Descriptions' => $Descriptions,
+		);
+	}
+	
+	/**
+	 * Check if this is a bootstrapped extension.
+	 * 
+	 * @param DOMDocument $installRdf
+	 * @return bool
+	 */
+	protected function isBootstrapped(DOMDocument $installRdf) {
+		$allDescriptions = $this->getDescriptionSFromInstallRdf($installRdf);
+		$urnDescription = $allDescriptions['urnDescription'];
+
+		if (!$urnDescription) {
+			return false;
+		}
+		
+		$nodes = $urnDescription->getElementsByTagName('bootstrap');
+		
+		if ($nodes->length > 0) {
+			$nodes = iterator_to_array($nodes);
+			$val = $nodes[0]->nodeValue;
+			
+			return strtolower($val) == 'true';
+		}
+		
+		return false;
+	}
+
 	
 	/**
 	 * Find application maxVersion node (attribute or element) referenced by the given
