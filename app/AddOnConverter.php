@@ -436,7 +436,7 @@ class AddOnConverter {
 	 * then return new seamonkey-specific line. Otherwise, return empty string.
 	 * 
 	 * @param string $originalLine
-	 * @retutn string
+	 * @return string
 	 */
 	private function createNewManifestLine($originalLine) {
 		$convertedLine = strtr($originalLine, $this->chromeURLReplacements);
