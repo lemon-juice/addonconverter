@@ -1316,6 +1316,14 @@ class AddOnConverter {
 			'Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getComplexValue("browser.startup.homepage", Components.interfaces.nsISupportsString).data',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/googlesearch-by-image/
+		// replace: openLinkIn(url, where, params)
+		// to: openUILinkIn(url, where)
+		$contents = preg_replace(
+			'/(?<![\w\.])openLinkIn\(([^,]+),([^,]+)[^)]*\)/',
+			'openUILinkIn($1,$2)',
+			$contents);
+		
 		return $contents;
 	}
 	
