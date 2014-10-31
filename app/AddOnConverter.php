@@ -1324,6 +1324,25 @@ class AddOnConverter {
 			'openUILinkIn($1,$2)',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
+		// replace id for 'sidebar' with 'sidebar-box'
+		$contents = preg_replace(
+			'/\bgetElementById\s*\((["\'])sidebar(["\'])\)/',
+			'getElementById($1sidebar-box$2)',
+			$contents);
+		
+		$contents = preg_replace(
+			'#\bBrowserOpenAddonsMgr\(["\']addons://list/([\w-]*)["\']\)#',
+			'window.toEM(\'addons://list/$1\')',
+			$contents);
+		
+		// comment out Components.utils.import("resource:///modules/devtools/scratchpad-manager.jsm");
+		// because it doesn't exist in SM (used by Greasemonkey)
+		$contents = preg_replace(
+			'#([\w.]+.import\(["\']resource:///modules/devtools/scratchpad-manager.jsm["\']\))#',
+			'// $1',
+			$contents);
+		
 		return $contents;
 	}
 	

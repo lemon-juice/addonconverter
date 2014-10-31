@@ -23,6 +23,7 @@ class EntityReplacer {
 //			'options.title' => 'Options',
 //			'saveChanges.label' => 'Save changes',
 //			'viewCustomizeToolbar.label' => 'Customize toolbar',
+			'prefWindow.titleWin' => 'Options',
 		);
 		
 		foreach ($this->entityReplacements as $key => $replacement) {
