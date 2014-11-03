@@ -1349,6 +1349,21 @@ class AddOnConverter {
 			'window.toEM(\'addons://list/$1\')',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/yet-another-context-search/
+		// contextMenuSearch -> searchSelected
+		$contents = preg_replace(
+			'/\.(getFormattedString|getString)(\s*\()(["\'])contextMenuSearch(\.accesskey)?(["\'])/',
+			'.$1$2$3searchSelected$4$5',
+			$contents, -1, $count);
+		
+		if ($count > 0) {
+			// replace id for 'bundle_browser' with '$1contentAreaCommandsBundle$2'
+			$contents = preg_replace(
+				'/\bgetElementById\s*\((["\'])bundle_browser(["\'])\)/',
+				'getElementById($1contentAreaCommandsBundle$2)',
+				$contents);
+		}
+		
 		// comment out Components.utils.import("resource:///modules/devtools/scratchpad-manager.jsm");
 		// because it doesn't exist in SM (used by Greasemonkey)
 		$contents = preg_replace(
