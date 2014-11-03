@@ -1319,11 +1319,22 @@ class AddOnConverter {
 			$contents);
 		
 		// example: https://addons.mozilla.org/en-US/firefox/addon/googlesearch-by-image/
+		// or: https://addons.mozilla.org/en-US/firefox/addon/quickcontextsearch/
 		// replace: openLinkIn(url, where, params)
-		// to: openUILinkIn(url, where)
-		$contents = preg_replace(
-			'/(?<![\w\.])openLinkIn\(([^,]+),([^,]+)[^)]*\)/',
-			'openUILinkIn($1,$2)',
+		// to: openUILinkIn(url, where, params.allowThirdPartyFixup, params.postData)
+		$contents = preg_replace_callback(
+			'/([^\w"\'.]?|window\.)openLinkIn\(([^,]+),([^,)]+)([^)]*)\)/',
+			function($matches) {
+				$ret = "$matches[1]openUILinkIn($matches[2],$matches[3]";
+
+				if (isset($matches[4])) {
+					$ret .= "$matches[4].allowThirdPartyFixup";
+					$ret .= "$matches[4].postData";
+				}
+
+				$ret .= ")";
+				return $ret;
+			},
 			$contents);
 		
 		// example: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
