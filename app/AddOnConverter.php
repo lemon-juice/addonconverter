@@ -1271,8 +1271,9 @@ class AddOnConverter {
 		}
 		
 		// getBrowserSelection() is FF specific
+		// eg.: https://addons.mozilla.org/en-US/firefox/addon/context-search/
 		$contents = preg_replace(
-			'/([^\w"\'.]){1}getBrowserSelection[\t ]*\(([^)]*)\)/',
+			'/([^\w"\'.]{1}|window\.)getBrowserSelection[\t ]*\(([^)]*)\)/',
 			'$1gContextMenu.searchSelected($2)',
 			$contents);
 		
