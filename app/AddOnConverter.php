@@ -1259,6 +1259,7 @@ class AddOnConverter {
 			'menu_ToolsPopup' => 'taskPopup',
 			'menu_HelpPopup' => 'helpPopup',
 			'addon-bar' => 'status-bar',
+			'browser.search.context.loadInBackground' => 'browser.tabs.loadInBackground',
 		);
 		
 		foreach ($replacements as $from => $to) {
