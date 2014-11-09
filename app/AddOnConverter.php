@@ -1371,6 +1371,14 @@ class AddOnConverter {
 			'// $1',
 			$contents);
 		
+		
+		// potentially in https://addons.mozilla.org/en-US/firefox/addon/toomanytabs-saves-your-memory/
+		// but broken addon, anyway
+//		$contents = preg_replace(
+//			'/\bgContextMenu(\.|\[)/',
+//			'new nsContextMenu(document.getElementById("contentAreaContextMenu"))$1',
+//			$contents);
+		
 		return $contents;
 	}
 	
