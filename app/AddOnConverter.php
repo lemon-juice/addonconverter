@@ -1099,6 +1099,15 @@ class AddOnConverter {
 				$contents = file_get_contents((string) $pathInfo);
 				$newContents = strtr($contents, $replacements);
 				
+				// https://addons.mozilla.org/en-US/firefox/addon/progre/
+				// Fx: http://mxr.mozilla.org/comm-central/source/mozilla/browser/base/content/urlbarBindings.xml#46
+				// SM: http://mxr.mozilla.org/comm-central/source/mozilla/xpfe/components/autocomplete/resources/content/autocomplete.xml#40
+				$newContents = preg_replace(
+					'~<xul:popupset\s+anonid=["\']popupset["\']\s+class=["\']autocomplete-result-popupset["\']\s*/>~',
+					'<xul:popupset><xul:panel type="autocomplete" anonid="popup" ignorekeys="true" noautofocus="true" level="top" xbl:inherits="for=id,nomatch"/></xul:popupset>',
+					$newContents
+				);
+				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
 					
