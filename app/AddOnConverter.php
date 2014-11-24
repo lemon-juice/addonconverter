@@ -1105,8 +1105,16 @@ class AddOnConverter {
 				$newContents = preg_replace(
 					'~<xul:popupset\s+anonid=["\']popupset["\']\s+class=["\']autocomplete-result-popupset["\']\s*/>~',
 					'<xul:popupset><xul:panel type="autocomplete" anonid="popup" ignorekeys="true" noautofocus="true" level="top" xbl:inherits="for=id,nomatch"/></xul:popupset>',
-					$newContents
+					$newContents, -1, $count
 				);
+				
+				if ($count > 0) {
+					$newContents = preg_replace(
+						'~<content\s+sizetopopup=["\']pref["\']\s*>~',
+						'<content><children includes="menupopup"/>',
+						$newContents
+					);
+				}
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
