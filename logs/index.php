@@ -6,7 +6,7 @@ function extLink($url) {
 function linkToAMO($url) {
 	// e.g.: https://addons.mozilla.org/firefox/downloads/latest/11617/addon-11617-latest.xpi
 	// https://addons.cdn.mozilla.net/user-media/addons/201/downthemall-2.0.17-fx+sm.xpi
-	$count = preg_match('#^https?://[^/]+\.mozilla\.[a-z]+/.+/(\d{1,8})/.+\.xpi#i', $url, $matches);
+	$count = preg_match('#^https?://[^/]+\.mozilla\.[a-z]+/.+/(?:addons?|latest)/(\d{1,8})/.+\.xpi#i', $url, $matches);
 	
 	if ($count) {
 		return "https://addons.mozilla.org/addon/" . $matches[1] . "/";
