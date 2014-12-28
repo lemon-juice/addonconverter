@@ -1117,6 +1117,10 @@ class AddOnConverter {
 					);
 				}
 				
+				if ($ext == 'xul') {
+					$newContents = $this->replaceOtherXulContent($newContents);
+				}
+				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
 					
@@ -1131,6 +1135,23 @@ class AddOnConverter {
 		return $changedCount;
 	}
 	
+	/**
+	 * Do special replacements in XUL files only.
+	 * @param string $content
+	 * @return string
+	 */
+	protected function replaceOtherXulContent($content) {
+		// https://addons.mozilla.org/en-US/firefox/addon/navigate-up/
+		if (preg_match('/["\']navigateup-button["\']/', $content)) {
+			// remove <image id="go-button"/>
+			$content = preg_replace('~<image\s+id[ \t]*=[ \t]*["\']go-button["\']\s*/>~', '', $content);
+			// remove padding from up button
+			$content = preg_replace('~<image(.*?)(id[ \t]*=[ \t]*["\']navigateup-button["\'])~', '<image$1$2 style="padding: 0"', $content);
+		}
+
+		return $content;
+	}
+
 	/**
 	 * Fix Firefox shortcuts in js files
 	 * @return int number of changed files
