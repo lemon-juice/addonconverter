@@ -1073,6 +1073,7 @@ class AddOnConverter {
 		
 		$ids = array(
 			'menu_ToolsPopup' => 'taskPopup',
+			'menu_viewPopup' => 'menu_View_Popup',
 			'menu_HelpPopup' => 'helpPopup',
 			'msgComposeContext' => 'contentAreaContextMenu',
 		);

@@ -77,6 +77,7 @@ emptyXPICache();
 				<span>?</span>
 				<span>Replaces:<br/>
 					<em>menu_ToolsPopup</em> to <em>taskPopup</em><br/>
+					<em>menu_viewPopup</em> to <em>menu_View_Popup</em><br/>
 					<em>menu_HelpPopup</em> to <em>helpPopup</em><br/>
 					<em>msgComposeContext</em> to <em>contentAreaContextMenu</em>
 				</span>
@@ -119,7 +120,7 @@ emptyXPICache();
 
 
 <div class="footer-text">
-	<div class="update">Last update of converter engine: 2014-11-24</div>
+	<div class="update">Last update of converter engine: 2014-12-28</div>
 	<div class="disclaimer">Disclaimer: This service is provided as-is, free of charge, and without any warranty whatsoever. The author and provider of this service shall not be responsible for any damages caused directly or indirectly by using this web application.</div>
 </div>
 
