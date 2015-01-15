@@ -1295,6 +1295,7 @@ class AddOnConverter {
 			'@mozilla.org/browser/sessionstore;1' => '@mozilla.org/suite/sessionstore;1',
 			'@mozilla.org/steel/application;1' => '@mozilla.org/smile/application;1',
 			'@mozilla.org/fuel/application;1' => '@mozilla.org/smile/application;1',
+			'fuelIApplication' => 'smileIApplication',
 			'blockedPopupOptions' => 'popupNotificationMenu',
 			'menu_ToolsPopup' => 'taskPopup',
 			'menu_HelpPopup' => 'helpPopup',
