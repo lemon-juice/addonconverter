@@ -2,6 +2,10 @@
 require "app/Init.php";
 require "app/functions.php";
 
+if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+	header("Location: http://" . $_SERVER['HTTP_HOST'] . "/");
+}
+
 emptyXPICache();
 
 try {
