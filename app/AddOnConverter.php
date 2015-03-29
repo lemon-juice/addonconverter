@@ -1241,8 +1241,11 @@ class AddOnConverter {
 		
 		foreach ($found as $shortcut) {
 			
-			if (preg_match('/\bconst\b.*?\b' .$shortcut. '\b.*?=/s', $contents)) {
-				// don't add if there is a 'const ...' declaration
+			// const Cc = Components.classes;
+			// var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+			if (preg_match('/\b(const|var)\b.*?\b' .$shortcut. '\b.*?=/s', $contents)
+				|| preg_match('/\b(const|var)\b\s*\{[^}]*\b' . $shortcuts[$shortcut]. '\s*:\s*' . $shortcut . '\b/', $contents)) {
+				// don't add if there is a const or var declaration
 				continue;
 			}
 			
