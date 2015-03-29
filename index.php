@@ -105,10 +105,10 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="jsShortcuts" checked="" /> add definitions for Firefox-specific js shortcuts (Cc, Ci, Cr, Cu)</label>
+			<label><input type="checkbox" name="jsShortcuts" checked="" /> replace shortcuts for Components</label>
 			<span class="help">
 				<span>?</span>
-				<span>Adds <em>var</em> definitions for Cc, Ci, Cr and Cu corresponding to properties <em>classes</em>, <em>interfaces</em>, <em>results</em> and <em>utils</em> in the <em>Components</em> object respectively. It does its best not to add those definitions if they are defined as constants in the javascript file. Also, these shortcuts are not added to bootstrapped (restartless) extensions.</span>
+				<span>Replace Firefox specific shortcuts for Cc, Ci, Cr and Cu  to <em>Components.classes</em>, <em>Components.interfaces</em>, <em>Components.results</em> and <em>Components.utils</em>. It does its best not to replace if the shortcuts are defined as constants in the javascript file. Also, these shortcuts are not replaced in bootstrapped (restartless) extensions.</span>
 			</span>
 		</div>
 	</div>

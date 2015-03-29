@@ -1168,14 +1168,14 @@ class AddOnConverter {
 			$ext = strtolower($pathInfo->getExtension());
 			if ($pathInfo->isFile() && ($ext == 'js' || $ext == 'jsm')) {
 				$contents = file_get_contents((string) $pathInfo);
-				$newContents = $this->addJsShortcutConstants($contents);
+				$newContents = $this->replaceComponentsShortcuts($contents);
 				
 				if ($contents !== $newContents) {
 					file_put_contents((string) $pathInfo, $newContents);
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log($localname, "Added definitions for javascript shortcuts, which are not available in SeaMonkey");
+					$this->log($localname, "Replaced shortcuts for Components");
 					$changedCount++;
 				}
 			}
@@ -1184,11 +1184,46 @@ class AddOnConverter {
 		return $changedCount;
 	}
 	
+//	/**
+//	 * @param string $contents
+//	 * @return string contents with prepended definitions
+//	 */
+//	private function replaceComponentsShortcuts($contents) {
+//		$shortcuts = array(
+//			'Cc' => 'Components.classes',
+//			'Ci' => 'Components.interfaces',
+//			'Cr' => 'Components.results',
+//			'Cu' => 'Components.utils',
+//		);
+//		
+//		// detect which shortcuts are used
+//		$set = implode('|', array_keys($shortcuts));
+//		
+//		preg_match_all('/\b(' .$set. ')[\[.]/', $contents, $matches);
+//		$found = array_unique($matches[1]);
+//		
+//		$definitions = "";
+//		
+//		foreach ($found as $shortcut) {
+//			
+//			if (preg_match('/\bconst\b.*?\b' .$shortcut. '\b.*?=/s', $contents)) {
+//				// don't add if there is a 'const ...' declaration
+//				continue;
+//			}
+//			
+//			$definitions .= "if (typeof $shortcut == 'undefined') {\n"
+//				. "  var $shortcut = " .$shortcuts[$shortcut]. ";\n"
+//				. "}\n\n";
+//		}
+//		
+//		return $definitions . $contents;
+//	}
+	
 	/**
 	 * @param string $contents
-	 * @return string contents with prepended definitions
+	 * @return string contents with replaced shortcuts
 	 */
-	private function addJsShortcutConstants($contents) {
+	private function replaceComponentsShortcuts($contents) {
 		$shortcuts = array(
 			'Cc' => 'Components.classes',
 			'Ci' => 'Components.interfaces',
@@ -1211,14 +1246,14 @@ class AddOnConverter {
 				continue;
 			}
 			
-			$definitions .= "if (typeof $shortcut == 'undefined') {\n"
-				. "  var $shortcut = " .$shortcuts[$shortcut]. ";\n"
-				. "}\n\n";
+			$contents = preg_replace(
+				'#\b' .$shortcut . '([.[])#',
+				$shortcuts[$shortcut] .'$1',
+				$contents);
 		}
 		
 		return $definitions . $contents;
 	}
-	
 	
 	/**
 	 * Fix Firefox keywords in js files
@@ -1411,7 +1446,6 @@ class AddOnConverter {
 			'#([\w.]+.import\(["\']resource:///modules/devtools/scratchpad-manager.jsm["\']\))#',
 			'// $1',
 			$contents);
-		
 		
 		// potentially in https://addons.mozilla.org/en-US/firefox/addon/toomanytabs-saves-your-memory/
 		// but broken addon, anyway
