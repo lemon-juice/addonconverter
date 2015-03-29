@@ -1447,6 +1447,15 @@ class AddOnConverter {
 			'// $1',
 			$contents);
 		
+		// example: https://addons.mozilla.org/en-US/firefox/addon/image-picker/
+		// change comparing Firefox app version to gecko version, like:
+		// var isUpperV31 = versionChecker.compare(appInfo.version, "31") > 0;
+		$contents = preg_replace(
+			'/(\b\.compare\b.*?\.)version\b/',
+			'$1platformVersion',
+			$contents);
+		
+		
 		// potentially in https://addons.mozilla.org/en-US/firefox/addon/toomanytabs-saves-your-memory/
 		// but broken addon, anyway
 //		$contents = preg_replace(
