@@ -85,7 +85,7 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="jsKeywords" checked="" /> replace some Firefox-specific keywords in js files</label>
+			<label><input type="checkbox" name="jsKeywords" checked="" /> make replacements in javascript code</label>
 			<span class="help">
 				<span>?</span>
 				<span>Replaces strings:<br/>
@@ -96,6 +96,7 @@ emptyXPICache();
 					<em>menu_ToolsPopup</em> to <em>taskPopup</em><br/>
 					<em>menu_HelpPopup</em> to <em>helpPopup</em><br/>
 					<em>getBrowserSelection(...)</em> to <em>ContextMenu.searchSelected(...)</em><br/>
+					There are also many others potential things replaced in javascript, which are too long to list here.
 				</span>
 			</span>
 		</div>

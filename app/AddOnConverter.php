@@ -1281,7 +1281,7 @@ class AddOnConverter {
 					
 					$localname = substr($pathInfo->__toString(), $dirLen + 1);
 					
-					$this->log($localname, "Replaced some javascript keywords");
+					$this->log($localname, "Made replacements in javascript");
 					$changedCount++;
 				}
 			}
