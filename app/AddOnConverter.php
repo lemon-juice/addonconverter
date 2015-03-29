@@ -1231,6 +1231,13 @@ class AddOnConverter {
 			'Cu' => 'Components.utils',
 		);
 		
+		$shortcuts2 = array(
+			'Cc' => 'classes',
+			'Ci' => 'interfaces',
+			'Cr' => 'results',
+			'Cu' => 'utils',
+		);
+		
 		// detect which shortcuts are used
 		$set = implode('|', array_keys($shortcuts));
 		
@@ -1243,8 +1250,8 @@ class AddOnConverter {
 			
 			// const Cc = Components.classes;
 			// var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-			if (preg_match('/\b(const|var)\b.*?\b' .$shortcut. '\b.*?=/s', $contents)
-				|| preg_match('/\b(const|var)\b\s*\{[^}]*\b' . $shortcuts[$shortcut]. '\s*:\s*' . $shortcut . '\b/', $contents)) {
+			if (preg_match('/\b(const|var)\s*.*?\b' .$shortcut. '\s*=\s*' .$shortcuts[$shortcut]. '\b/s', $contents)
+				|| preg_match('/\b(const|var)\s*\{[^}]*?\b' . $shortcuts2[$shortcut]. '\s*:\s*' . $shortcut . '\b/', $contents)) {
 				// don't add if there is a const or var declaration
 				continue;
 			}
@@ -1453,9 +1460,21 @@ class AddOnConverter {
 		// example: https://addons.mozilla.org/en-US/firefox/addon/image-picker/
 		// change comparing Firefox app version to gecko version, like:
 		// var isUpperV31 = versionChecker.compare(appInfo.version, "31") > 0;
-		$contents = preg_replace(
-			'/(\b\.compare\b.*?\.)version\b/',
-			'$1platformVersion',
+		$contents = preg_replace_callback(
+			'/(\.compare\s*\([^.]+\.)(version)(\s*,\s*["\'])([0-9.]+)(["\'])/',
+			function($matches) {
+				if ($matches[4] >= 5) {
+					// Assume that version >=5 means Firefox so don't replace for
+					// lower versions. Gecko >=5 corresponds to Fx versions.
+					return $matches[1]
+						. 'platformVersion'
+						. $matches[3]
+						. $matches[4]
+						. $matches[5];
+				}
+				// don't replace
+				return $matches[0];
+			},
 			$contents);
 		
 		
