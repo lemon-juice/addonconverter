@@ -46,19 +46,14 @@ class AMOGrabber {
 			}
 		}
 		
-		$context = stream_context_create(array(
-			'http' => array(
-				'method' => 'GET',
-				'timeout' => 30,
-				'user_agent' => self::USER_AGENT,
-			)
-		));
-		
-		$source = @file_get_contents($url, false, $context, -1, $this->maxFileSize + 1024);
-		
-		if ($source === false) {
+		try {
+			$file = $this->fetchRemoteFile($url);
+			
+		} catch (IOException $ex) {
 			throw new Exception("Couldn't fetch file from remote server");
 		}
+		
+		$source = $file['content'];
 		
 		// check max filesize
 		if (strlen($source) > $this->maxFileSize) {
@@ -101,69 +96,49 @@ class AMOGrabber {
 	 * @throws Exception
 	 */
 	protected function fetchXPIFromAMO($source, $url, $destDir) {
-		$doc = new DOMDocument;
-		$result = @$doc->loadHTML($source);
 		
-		if (!$result) {
-			throw new Exception("Error parsing remote AMO page");
+		$downloadUrl = $this->getDownloadUrlFromAMOPage($source, $url);
+		
+		// fetch remote file
+		try {
+			$file = $this->fetchRemoteFile($downloadUrl);
+		} catch (IOException $ex) {
+			throw new Exception("Error fetching remote XPI: " . $ex->getMessage());
 		}
 		
-		$ps = $doc->getElementsByTagName('p');
-		$installElem = null;
-		
-		foreach ($ps as $p) {
-			if ($p->getAttribute('class') == 'install-button') {
-				$installElem = $p;
-				break;
+		if (substr($file['content'], 0, 2) != 'PK') { // not ZIP archive
+			
+			// the button can lead to proper download page (in extensions
+			// asking for contributions) - try parsing it and fetching XPI again
+			try {
+				$downloadUrl = $this->getDownloadUrlFromAMOPage($file['content'], $url);
+				
+				// fetch remote file
+				try {
+					$file = $this->fetchRemoteFile($downloadUrl);
+				} catch (IOException $ex) {
+					throw new Exception("Error fetching remote XPI: " . $ex->getMessage());
+				}
+
+				if (substr($file['content'], 0, 2) != 'PK') {
+					throw new Exception;
+				}
+				
+			} catch (Exception $ex) {
+				throw new Exception("The link under download button on the AMO page doesn't lead to XPI file. You may need to provide a link to the target download page or directly to the XPI file.");
 			}
 		}
 		
-		if (!$installElem) {
-			throw new Exception("Couldn't find download link container on remote AMO page");
-		}
-		
-		$link = $installElem->getElementsByTagName('a')->item(0);
-		
-		if (!$link) {
-			throw new Exception("Couldn't find download link on remote AMO page");
-		}
-		
-		$downloadUrl = $this->relativeToAbsoluteURL($link->getAttribute('href'), $url);
-		
-		// fetch remote file
-		$ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $downloadUrl);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		curl_setopt($ch, CURLOPT_USERAGENT, self::USER_AGENT);
-
-		$xpi = curl_exec($ch);
-		$error = curl_error($ch);
-		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		curl_close($ch);
-		
-		if ($xpi === false) {
-			throw new Exception("Error fetching remote XPI: $error");
-		}
-		
-		if (substr($xpi, 0, 2) != 'PK') {
-			throw new Exception("The link under download button on the AMO page doesn't lead to XPI file. You may need to provide a link to the target download page or directly to the XPI file.");
-		}
-		
-		if (strlen($xpi) > $this->maxFileSize) {
+		if (strlen($file['content']) > $this->maxFileSize) {
 			$maxMB = round($this->maxFileSize / 1024 / 1024, 1);
 			throw new Exception("Remote XPI file too large. Maximum $maxMB MB is allowed");
 		}
 		
-		$filename = $this->urlToFilename($effectiveUrl);
+		$filename = $this->urlToFilename($file['effectiveUrl']);
 		
 		$destFile = "$destDir/$filename";
 		
-		if (!@file_put_contents($destFile, $xpi)) {
+		if (!@file_put_contents($destFile, $file['content'])) {
 			throw new Exception("Cannot save to local file");
 		}
 
@@ -238,5 +213,75 @@ class AMOGrabber {
 	
 	protected function urlToFilename($url) {
 		return pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_BASENAME);
+	}
+	
+	/**
+	 * @param string $url
+	 * @return array [content,effectiveUrl]
+	 * @throws IOException
+	 */
+	protected function fetchRemoteFile($url) {
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_USERAGENT, self::USER_AGENT);
+
+		$content = curl_exec($ch);
+		$error = curl_error($ch);
+		$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		curl_close($ch);
+		
+		if ($content === false) {
+			throw new IOException($error);
+		}
+		
+		return array(
+			'content' => $content,
+			'effectiveUrl' => $effectiveUrl,
+		);
+	}
+	
+	/**
+	 * Get URL from the download button on AMO
+	 * 
+	 * @param string $source HTML source of page
+	 * @param string $url URL of page
+	 * @throws Exception
+	 */
+	protected function getDownloadUrlFromAMOPage($source, $url) {
+		$doc = new DOMDocument;
+		$result = @$doc->loadHTML($source);
+		
+		if (!$result) {
+			throw new Exception("Error parsing remote AMO page");
+		}
+		
+		$ps = $doc->getElementsByTagName('p');
+		$installElem = null;
+		
+		foreach ($ps as $p) {
+			if ($p->getAttribute('class') == 'install-button') {
+				$installElem = $p;
+				break;
+			}
+		}
+		
+		if (!$installElem) {
+			throw new Exception("Couldn't find download link container on remote AMO page");
+		}
+		
+		$link = $installElem->getElementsByTagName('a')->item(0);
+		
+		if (!$link) {
+			throw new Exception("Couldn't find download link on remote AMO page");
+		}
+		
+		$downloadUrl = $this->relativeToAbsoluteURL($link->getAttribute('href'), $url);
+		return $downloadUrl;
 	}
 }
