@@ -56,6 +56,10 @@ div.error {
 	width: 93%;
 }
 
+div.bottom-info {
+	margin-top: 1.5em;
+}
+
 div.footer-text {
 	margin: 2em 0 0 0;
 	border-top: 1px dotted #888;
@@ -80,6 +84,13 @@ form div.group {
 }
 form div.group.options {
 	font-size: 90%;
+}
+form input[name=url] {
+	box-sizing: border-box;
+	width: 100%;
+	font-weight: bold;
+	font-size: 90%;
+	padding: 0.4em;
 }
 #main h2 {
 	margin: 0;
@@ -122,6 +133,34 @@ div.warning {
 	padding: 1em;
 	margin: 0.5em 0;
 	color: black;
+}
+
+div.adv-options {
+	font-size: 90%;
+	text-align: right;
+}
+
+div.buttons {
+}
+input.convert {
+	background: #0066cc;
+	color: white;
+	border: 1px solid black;
+	border-radius: 6px;
+	padding: 0.5em 0.7em;
+	cursor: pointer;
+}
+input.convert.install {
+	background: #279f00;
+}
+input.convert:hover {
+	opacity: 0.8;
+}
+input.convert:active {
+	box-shadow: 0px 0px 3px 3px rgba(255, 183, 40, 1);
+}
+div.buttons input:nth-child(2) {
+	margin-left: 2em;
 }
 
 

@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
 		toggleChromeExtensions();
 		toggleConvertManifest();
 	}
+	
+	var ao = document.getElementById('advOptionsChbox');
+	
+	if (ao) {
+		ao.addEventListener('click', toggleAdvOptions, false);
+		toggleAdvOptions();
+	}
+	
 }, false);
 
 function toggleChromeExtensions() {
@@ -24,4 +32,9 @@ function toggleConvertManifest() {
 	var form = document.getElementById('converterForm');
 	
 	form.convertPageInfoChrome.disabled = !form.convertManifest.checked;
+}
+
+function toggleAdvOptions() {
+	var display = document.getElementById('advOptionsChbox').checked ? '' : 'none';
+	document.getElementById('options').style.display = display;
 }

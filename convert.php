@@ -84,6 +84,13 @@ try {
 	exit;
 }
 
+
+if (!empty($_POST['installButton'])) {
+	// install directly!
+	header("HTTP/1.1 303 See Other");
+	header("Location: http://$_SERVER[HTTP_HOST]/install.php?file=" . urlencode($destFile));
+	exit;
+}
 ?>
 
 <? include "templates/header.php" ?>
@@ -108,7 +115,7 @@ try {
 		<? endforeach ?>
 	</ol>
 
-	<h2>Your converted add-on is available for download here:</h2>
+	<h2>Your converted add-on is available here for download.<br>Left-click to install, or right click -&gt; <em>Save Link Target As</em> to download:</h2>
 	<p>
 		<a href="<?=htmlspecialchars($destFile) ?>" class="download"><?=htmlspecialchars(basename($destFile)) ?></a>
 		&mdash;

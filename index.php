@@ -2,6 +2,38 @@
 require_once "app/functions.php";
 
 emptyXPICache();
+
+
+// GET parameters to pre-fill form
+$form = array(
+	'url' => '',
+	'maxVersion' => '2.*',
+);
+
+if (isset($_GET['url']) && preg_match('#^https?://#', $_GET['url'])) {
+	$form['url'] = $_GET['url'];
+}
+if (!empty($_GET['maxVersion']) && preg_match('/^[0-9.*]{1,8}$/', $_GET['maxVersion'])) {
+	$form['maxVersion'] = $_GET['maxVersion'];
+}
+
+// checkboxes
+$checkboxes = array(
+	'convertManifest',
+	'convertPageInfoChrome',
+	'convertChromeUrls',
+	'xulIds',
+	'jsKeywords',
+	'replaceEntities',
+	'jsShortcuts',
+);
+
+foreach ($checkboxes as $chbox) {
+	$form[$chbox] = (isset($_GET[$chbox]) && $_GET[$chbox] == 'off')
+		? false
+		: true;
+}
+
 ?>
 <? include "templates/header.php" ?>
 
@@ -16,38 +48,50 @@ emptyXPICache();
 		<p>The purpose of this tool is to make Firefox and Thunderbird extensions compatible with <a href="http://www.seamonkey-project.org/">SeaMonkey</a>. It will run a couple of automatic conversions based on <a href="https://developer.mozilla.org/en-US/Add-ons/SeaMonkey_2">most commonly known differences</a> between Firefox and SeaMonkey. There is no guarantee that every extension will work in SeaMonkey &mdash; it will usually install but how and if it will work depends on the code. The simpler the extension the more likelihood of succeess. To learn more about this tool read the discussion on <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">MozillaZine Forum</a>.</p>
 		<p>For trying out an extension in most cases it is best to leave the default options unchanged. Sometimes, this tool can do too much so in case of problems you may try to play with the options &mdash; remember this tool is mostly dumb and except for updating install.rdf it does not parse nor interpret the source code &mdash; it only does some basic string replacements. In most cases this will work, but sometimes it can produce broken code and unusable add-on. However, after the conversion you will be able to see the diff of changed files &mdash; handy for the more experienced users.</p>
 		<p class="warning"><strong>Warning!</strong> While there are some non-SeaMonkey extensions that can be automatically made compatible with SeaMonkey there is no guarantee what will actually happen. If you are unsure, it is strongly suggested you test the modded extension in a separate profile first as it can behave unexpectedly. Such modifications are neither supported by Mozilla nor by add-on authors so remember you are doing this at your own risk!</p>
-	
-
-		<h2>Feedback and Support</h2>
-		<p>There's no formal support for this tool but you are welcome to share your experience, discuss and ask questions in <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">this MozillaZine thread</a>. There you will also find information on which extensions work after automatic conversion and which don't.</p>
 	</div>
 
 	<h2>Converter</h2>
 
-	<div class="group">
-		Upload add-on installer file (with <em>.xpi</em> filename extension):
-		<div class="field"><input type="file" name="xpi" /></div>
-	</div>
+	<? if (!$form['url']): ?>
+		<div class="group">
+			Upload add-on installer file (with <em>.xpi</em> filename extension):
+			<div class="field"><input type="file" name="xpi" /></div>
+		</div>
+	<? endif ?>
 	
 	<div class="group">
-		or paste direct link to xpi file or full URL of add-on page at https://addons.mozilla.org/:
-		<div class="field"><input type="text" name="url" size="95" maxlength="250" /></div>
+		<? if ($form['url']): ?>
+			Add-on to convert (link to xpi file or full URL of add-on at https://addons.mozilla.org/):
+		<? else: ?>
+			or paste direct link to xpi file or full URL of add-on page at https://addons.mozilla.org/:
+		<? endif ?>
+		
+		<div class="field"><input type="text" name="url" value="<?=htmlspecialchars($form['url']) ?>" size="95" maxlength="250" /></div>
 	</div>
 	
-	<div class="group options">
+	<? if ($form['url']): ?>
+		<div class="adv-options">
+			<label>
+				<input type="checkbox" id="advOptionsChbox">
+				Show advanced options
+			</label>
+		</div>
+	<? endif ?>
+	
+	<div class="group options" id="options"<? if ($form['url']): ?> style="display: none"<? endif ?>>
 		<h2>Options:</h2>
 		
 		<div>
 			<label><input type="checkbox" checked="" disabled="" /> add SeaMonkey to install.rdf</label>
 		</div>
 		<div>
-			set maxVersion to: <input type="text" name="maxVersion" value="2.*" size="7" maxlength="7" />
+			set maxVersion to: <input type="text" name="maxVersion" value="<?=htmlspecialchars($form['maxVersion']) ?>" size="7" maxlength="7" />
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="convertManifest" checked="" /> add SeaMonkey-specific overlays to manifest files</label>
+			<label><input type="checkbox" name="convertManifest"<? if ($form['convertManifest']): ?> checked=""<? endif ?> /> add SeaMonkey-specific overlays to manifest files</label>
 			<div class="checkboxes">
-				<label><input type="checkbox" name="convertPageInfoChrome" checked="" /> allow to port Page Info features</label>
+				<label><input type="checkbox" name="convertPageInfoChrome"<? if ($form['convertPageInfoChrome']): ?> checked=""<? endif ?> /> allow to port Page Info features</label>
 				
 				<span class="help">
 					<span>?</span>
@@ -59,7 +103,7 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="convertChromeUrls" checked="" /> convert <em>chrome://</em> URL's in following file types:</label>
+			<label><input type="checkbox" name="convertChromeUrls"<? if ($form['convertChromeUrls']): ?> checked=""<? endif ?> /> convert <em>chrome://</em> URL's in following file types:</label>
 		</div>
 		<div id="convertChromeUrlsExtensions" class="checkboxes">
 			<label><input type="checkbox" name="convertChromeExtensions[]" value="xul" checked="" /> xul</label>
@@ -72,7 +116,7 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="xulIds" checked="" /> replace some Thunderbird- and Firefox-specific IDs in xul and xml files</label>
+			<label><input type="checkbox" name="xulIds"<? if ($form['xulIds']): ?> checked=""<? endif ?> /> replace some Thunderbird- and Firefox-specific IDs in xul and xml files</label>
 			<span class="help">
 				<span>?</span>
 				<span>Replaces:<br/>
@@ -85,7 +129,7 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="jsKeywords" checked="" /> make replacements in javascript code</label>
+			<label><input type="checkbox" name="jsKeywords"<? if ($form['jsKeywords']): ?> checked=""<? endif ?> /> make replacements in javascript code</label>
 			<span class="help">
 				<span>?</span>
 				<span>Replaces strings:<br/>
@@ -102,11 +146,11 @@ emptyXPICache();
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="replaceEntities" checked="" /> replace some Firefox-specific entities with plain text</label>
+			<label><input type="checkbox" name="replaceEntities"<? if ($form['replaceEntities']): ?> checked=""<? endif ?> /> replace some Firefox-specific entities with plain text</label>
 		</div>
 		
 		<div>
-			<label><input type="checkbox" name="jsShortcuts" checked="" /> replace shortcuts for Components</label>
+			<label><input type="checkbox" name="jsShortcuts"<? if ($form['jsShortcuts']): ?> checked=""<? endif ?> /> replace shortcuts for Components</label>
 			<span class="help">
 				<span>?</span>
 				<span>Replace Firefox specific shortcuts for Cc, Ci, Cr and Cu  to <em>Components.classes</em>, <em>Components.interfaces</em>, <em>Components.results</em> and <em>Components.utils</em>. It does its best not to replace if the shortcuts are defined as constants in the javascript file. Also, these shortcuts are not replaced in bootstrapped (restartless) extensions.</span>
@@ -114,11 +158,28 @@ emptyXPICache();
 		</div>
 	</div>
 	
-	<div>
-		<input type="submit" value="Convert!" />
+	<div class="buttons">
+		<? if (!$form['url']): ?>
+			<input type="submit" value="» Convert" class="convert" />
+		<? else: ?>
+			<input type="submit" value="» Convert and Install" name="installButton" class="convert install" />
+			<input type="submit" value="» Convert and View Details" class="convert" />
+		<? endif ?>
 	</div>
+	
+	<? if ($form['url']): ?>
+		<div style="margin-top: 2em">
+			<a href="/">Convert another extension</a>
+		</div>
+	<? endif ?>
 </form>
 
+
+<div class="bottom-info">
+	<hr>
+	<h2>Feedback and Support</h2>
+	<p>There's no formal support for this tool but you are welcome to share your experience, discuss and ask questions in <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">this MozillaZine thread</a>. There you will also find information on which extensions work after automatic conversion and which don't.</p>
+</div>
 
 <div class="footer-text">
 	<div class="update">Last update of converter engine: 2015-03-29</div>
