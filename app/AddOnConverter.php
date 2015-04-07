@@ -1478,6 +1478,12 @@ class AddOnConverter {
 			$contents);
 		
 		
+		$contents = preg_replace(
+			'#\b((?:window\.|\s)?gInitialPages\.)push\b#',
+			'$1add',
+			$contents);
+
+		
 		// potentially in https://addons.mozilla.org/en-US/firefox/addon/toomanytabs-saves-your-memory/
 		// but broken addon, anyway
 //		$contents = preg_replace(
