@@ -13,10 +13,10 @@ input {
 	font-size: 85%;
 }
 a {
-	color: blue;
+	color: #0061ff;
 }
 a:visited {
-	color: navy;
+	color: #9900cc;
 }
 
 div.header {

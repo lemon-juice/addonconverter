@@ -179,6 +179,7 @@ foreach ($checkboxes as $chbox) {
 	<hr>
 	<h2>Feedback and Support</h2>
 	<p>There's no formal support for this tool but you are welcome to share your experience, discuss and ask questions in <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">this MozillaZine thread</a>. There you will also find information on which extensions work after automatic conversion and which don't.</p>
+	<p>The source code of the converter is available on <a href="https://github.com/lemon-juice/addonconverter">GitHub</a>.</p>
 </div>
 
 <div class="footer-text">
