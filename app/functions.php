@@ -12,7 +12,7 @@ function emptyXPICache() {
 		return;
 	}
 	
-	$expiry = time() - 15 * 60;
+	$expiry = time() - 20 * 60;
 	
 	foreach (scandir($dir) as $filename) {
 		$path = "$dir/$filename";

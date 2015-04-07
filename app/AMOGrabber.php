@@ -14,7 +14,9 @@ class AMOGrabber {
 	public function __construct($maxFileSize) {
 		$this->maxFileSize = $maxFileSize;
 		
-		$this->cacheLifetime = 15 * 60;
+		// installers from AMO are cached for a while so that subsequent
+		// conversions don't require downloading again
+		$this->cacheLifetime = 30 * 60;
 		$this->cacheDir = "tmp/remote-cache";
 		
 		if (!is_dir($this->cacheDir)) {
