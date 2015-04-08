@@ -82,6 +82,7 @@ class AddOnConverter {
 			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/search/engineManager.js' => 'chrome://communicator/content/search/engineManager.js',
 			'chrome://browser/locale/places/editBookmarkOverlay.dtd' => 'chrome://communicator/locale/bookmarks/editBookmarkOverlay.dtd',
+			'chrome://browser/content/places/bookmarkProperties2.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
 			//'chrome://browser/locale/preferences/cookies.dtd' => 'chrome://communicator/locale/permissions/cookieViewer.dtd',
@@ -589,7 +590,7 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * Translate Firefox appversion to Gecko platformversion number.
+	 * Translate Fx or Tb appversion to Gecko platformversion number.
 	 * See https://developer.mozilla.org/en-US/docs/Mozilla/Gecko/Versions
 	 * @param string $appVer app version number, may contain * at the end,
 	 *    e.g. 3.6.*
@@ -1523,27 +1524,27 @@ class AddOnConverter {
 			'// $1',
 			$contents);
 		
-		// example: https://addons.mozilla.org/en-US/firefox/addon/image-picker/
-		// change comparing Firefox app version to gecko version, like:
+		// example: https://addons.mozilla.org/en-US/firefox/addon/secure-login/
+		// translate Fx version to SM version, exapmle:
+		//    .compare(this.getAppInfo().version, '2.*')
+		// -> .compare(this.getAppInfo().platformVersion, '1.1')
+		
+		// example2: https://addons.mozilla.org/en-US/firefox/addon/image-picker/
 		// var isUpperV31 = versionChecker.compare(appInfo.version, "31") > 0;
+		
 		$contents = preg_replace_callback(
-			'/(\.compare\s*\([^.]+\.)(version)(\s*,\s*["\'])([0-9.]+)(["\'])/',
-			function($matches) {
-				if ($matches[4] >= 5) {
-					// Assume that version >=5 means Firefox so don't replace for
-					// lower versions. Gecko >=5 corresponds to Fx versions.
-					return $matches[1]
-						. 'platformVersion'
-						. $matches[3]
-						. $matches[4]
-						. $matches[5];
-				}
-				// don't replace
-				return $matches[0];
-			},
-			$contents);
+			'/(\.compare\s*\(.+?\.)version(\s*,\s*["\'])(\d[\d.*]*)(["\'])/', 
+			function ($matches) {
+				return
+					$matches[1]
+					. 'platformVersion'
+					. $matches[2]
+					. $this->translateAppToPlatformVersion($matches[3], 'firefox')
+					. $matches[4];
+			}, $contents);
 		
 		
+		// gInitialPages.push() -> gInitialPages.add()
 		$contents = preg_replace(
 			'#\b((?:window\.|\s)?gInitialPages\.)push\b#',
 			'$1add',
