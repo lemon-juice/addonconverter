@@ -31,6 +31,8 @@ class AddOnConverter {
 	 */
 	protected $installRdf;
 	
+	protected $addonName = array();
+
 	const SEAMONKEY_ID = '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}';
 	const FIREFOX_ID = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
 	const THUNDERBIRD_ID = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';
@@ -65,6 +67,8 @@ class AddOnConverter {
 			throw new Exception("Cannot parse install.rdf as XML");
 		}
 		
+		$this->addonName = $this->getAddonNameFromInstallRds($this->installRdf);
+		
 		$this->chromeURLReplacements = array(
 			'chrome://browser/content/browser.xul' => 'chrome://navigator/content/navigator.xul',
 			'chrome://browser/content/pageinfo/pageInfo.xul' => 'chrome://navigator/content/pageinfo/pageInfo.xul',
@@ -91,6 +95,13 @@ class AddOnConverter {
 				$this->missingChromeURLs[$filename] = 'chrome://' .str_replace('+', '/', $filename);
 			}
 		}
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAddOnName() {
+		return $this->addonName;
 	}
 	
 	/**
@@ -243,6 +254,61 @@ class AddOnConverter {
 			'urnDescription' => $urnDescription,
 			'Descriptions' => $Descriptions,
 		);
+	}
+	
+	/**
+	 * @param DOMDocument $installRdf
+	 * @return array [name,version]
+	 */
+	protected function getAddonNameFromInstallRds(DOMDocument $installRdf) {
+		$out = array(
+			'name' => null,
+			'version' => null,
+		);
+		
+		$descriptions = $this->getDescriptionSFromInstallRdf($installRdf);
+		
+		if (empty($descriptions['urnDescription'])) {
+			return $out;
+		}
+		
+		// try name attribute on <Description>
+		$nameAttr = $descriptions['urnDescription']->getAttributeNode('em:name');
+		
+		if (!$nameAttr) {
+			$nameAttr = $descriptions['urnDescription']->getAttributeNode('name');
+		}
+		
+		if ($nameAttr) {
+			$out['name'] = $nameAttr->nodeValue;
+			
+		} else {
+			// look in child elements
+			foreach ($descriptions['urnDescription']->getElementsByTagName("name") as $name) {
+				$out['name'] = $name->nodeValue;
+				break;
+			}
+		}
+		
+		// find version
+		$versionAttr = $descriptions['urnDescription']->getAttributeNode('em:version');
+		
+		if (!$versionAttr) {
+			$versionAttr = $descriptions['urnDescription']->getAttributeNode('version');
+		}
+		
+		if ($versionAttr) {
+			$out['version'] = $versionAttr->nodeValue;
+			
+		} else {
+			// look in child elements
+			foreach ($descriptions['urnDescription']->getElementsByTagName("version") as $version) {
+				$out['version'] = $version->nodeValue;
+				break;
+			}
+		}
+		
+		return $out;
 	}
 	
 	/**

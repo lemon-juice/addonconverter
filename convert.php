@@ -30,8 +30,23 @@ try {
 	$tmpFile = "$tmpSourceDir/$uploadFileName";
 	$maxFileSize = 16 * 1024 * 1024;
 	
+	$logger = new ConversionLogger;
+	
+	$logData = array();
+	
+	if (!empty($_POST['installButton'])) {
+		$logData['button'] = 'inst';
+	} elseif (!empty($_POST['detailsButton'])) {
+		$logData['button'] = 'det';
+	}
+	
 	if ($uploadFileName) {
-		logFormSubmission($uploadFileName);
+		$logData += array(
+			'submit_file' => $uploadFileName,
+			'submit_file_length' => $_FILES['xpi']['size'],
+		);
+		
+		$logger->log($logData);
 		
 		if (!@move_uploaded_file($_FILES['xpi']['tmp_name'], $tmpFile)) {
 			throw new Exception("Error moving file to temporary folder");
@@ -44,7 +59,11 @@ try {
 		}
 		
 	} elseif ($url) {
-		logFormSubmission($url);
+		$logData += array(
+			'submit_url' => $url,
+		);
+		
+		$logger->log($logData);
 		
 		$ag = new AMOGrabber($maxFileSize);
 		$tmpFile = $ag->fetch($url, $tmpSourceDir);
@@ -77,6 +96,11 @@ try {
 	
 	unlink($tmpFile);
 	
+	$addOnName = $conv->getAddOnName();
+	$logger->log(array(
+		"addon_name" => trim($addOnName['name'] . " " . $addOnName['version'])
+	));
+	
 	
 } catch (Exception $ex) {
 	$error = $ex->getMessage();
@@ -94,6 +118,10 @@ if (!empty($_POST['installButton'])) {
 ?>
 
 <? include "templates/header.php" ?>
+<h1 class="addon-name">
+	<?=  htmlspecialchars($addOnName['name']) ?>
+	<span class="version"><?=  htmlspecialchars($addOnName['version']) ?></span>
+</h1>
 
 <h2>Conversion Results (click on file names to see changes):</h2>
 
@@ -115,7 +143,9 @@ if (!empty($_POST['installButton'])) {
 		<? endforeach ?>
 	</ol>
 
-	<h2>Your converted add-on is available here for download.<br>Left-click to install, or right click -&gt; <em>Save Link Target As</em> to download:</h2>
+	<h2>Your converted add-on is available here for download.</h2>
+	<p style="font-size: 75%">Left-click to install, or right click -&gt; <em>Save Link Target As</em> to download:</p>
+	
 	<p>
 		<a href="<?=htmlspecialchars($destFile) ?>" class="download"><?=htmlspecialchars(basename($destFile)) ?></a>
 		&mdash;
@@ -129,6 +159,8 @@ if (!empty($_POST['installButton'])) {
 	<p>I didn't find anything to convert in this add-on.</p>
 <? endif ?>
 
-	<p style="margin-top: 2em"><a href=".">« perform another conversion</a></p>
+	<br>
+	<hr>
+	<p style="margin-top: 1em"><a href=".">« perform another conversion</a></p>
 
 <? include "templates/footer.php" ?>

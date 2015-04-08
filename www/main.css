@@ -192,6 +192,14 @@ span.help:hover span:nth-child(2) {
 }
 
 
+h1.addon-name {
+	margin-top: 0;
+	color: green;
+}
+h1.addon-name span.version {
+	font-weight: normal;
+	color: #666;
+}
 
 a.download {
 	font-weight: bold;

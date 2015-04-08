@@ -163,7 +163,7 @@ foreach ($checkboxes as $chbox) {
 			<input type="submit" value="» Convert" class="convert" />
 		<? else: ?>
 			<input type="submit" value="» Convert and Install" name="installButton" class="convert install" />
-			<input type="submit" value="» Convert and View Details" class="convert" />
+			<input type="submit" value="» Convert and View Details" name="detailsButton" class="convert" />
 		<? endif ?>
 	</div>
 	
