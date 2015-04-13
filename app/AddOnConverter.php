@@ -82,6 +82,7 @@ class AddOnConverter {
 			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/search/engineManager.js' => 'chrome://communicator/content/search/engineManager.js',
 			'chrome://browser/locale/places/editBookmarkOverlay.dtd' => 'chrome://communicator/locale/bookmarks/editBookmarkOverlay.dtd',
+			'chrome://browser/content/places/bookmarkProperties.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
 			'chrome://browser/content/places/bookmarkProperties2.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
@@ -1548,6 +1549,14 @@ class AddOnConverter {
 		$contents = preg_replace(
 			'#\b((?:window\.|\s)?gInitialPages\.)push\b#',
 			'$1add',
+			$contents);
+		
+		// getBoolPref( -> GetBoolPref(
+		// window.getBoolPref( -> window.GetBoolPref(
+		// example: https://addons.mozilla.org/en-US/firefox/addon/liveclick/
+		$contents = preg_replace(
+			'#((?:[ \t=!&(\[\{:,?|]|\bwindow[ \t]*\.[ \t]*))getBoolPref([ \t]*\()#',
+			'$1GetBoolPref$2',
 			$contents);
 
 		
