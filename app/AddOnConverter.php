@@ -275,11 +275,7 @@ class AddOnConverter {
 		}
 		
 		// try name attribute on <Description>
-		$nameAttr = $descriptions['urnDescription']->getAttributeNode('em:name');
-		
-		if (!$nameAttr) {
-			$nameAttr = $descriptions['urnDescription']->getAttributeNode('name');
-		}
+		$nameAttr = $descriptions['urnDescription']->attributes->getNamedItem('name');
 		
 		if ($nameAttr) {
 			$out['name'] = $nameAttr->nodeValue;
@@ -293,11 +289,7 @@ class AddOnConverter {
 		}
 		
 		// find version
-		$versionAttr = $descriptions['urnDescription']->getAttributeNode('em:version');
-		
-		if (!$versionAttr) {
-			$versionAttr = $descriptions['urnDescription']->getAttributeNode('version');
-		}
+		$versionAttr = $descriptions['urnDescription']->attributes->getNamedItem('version');
 		
 		if ($versionAttr) {
 			$out['version'] = $versionAttr->nodeValue;
