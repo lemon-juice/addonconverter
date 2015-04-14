@@ -82,6 +82,7 @@ class AddOnConverter {
 			'chrome://browser/content/places/menu.xml' => 'chrome://communicator/content/places/menu.xml',
 			'chrome://browser/content/search/engineManager.js' => 'chrome://communicator/content/search/engineManager.js',
 			'chrome://browser/locale/places/editBookmarkOverlay.dtd' => 'chrome://communicator/locale/bookmarks/editBookmarkOverlay.dtd',
+			'chrome://browser/locale/places/places.dtd' => 'chrome://communicator/locale/bookmarks/places.dtd',
 			'chrome://browser/content/places/bookmarkProperties.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
 			'chrome://browser/content/places/bookmarkProperties2.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
