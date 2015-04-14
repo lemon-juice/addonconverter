@@ -42,8 +42,8 @@ try {
 	
 	if ($uploadFileName) {
 		$logData += array(
-			'submit_file' => $uploadFileName,
-			'submit_file_length' => $_FILES['xpi']['size'],
+			'url' => $uploadFileName,
+			'file_length' => $_FILES['xpi']['size'],
 		);
 		
 		$logger->log($logData);
@@ -60,7 +60,7 @@ try {
 		
 	} elseif ($url) {
 		$logData += array(
-			'submit_url' => $url,
+			'url' => $url,
 		);
 		
 		$logger->log($logData);
@@ -69,6 +69,8 @@ try {
 		$tmpFile = $ag->fetch($url, $tmpSourceDir);
 	}
 	
+	
+	$startTime = microtime(true);
 	
 	$conv = new AddOnConverter($tmpFile);
 	
@@ -94,11 +96,14 @@ try {
 	$result = $conv->getLogMessages();
 	$warnings = $conv->getWarnings();
 	
+	$duration = number_format(microtime(true) - $startTime, 2, '.', '');
+	
 	unlink($tmpFile);
 	
 	$addOnName = $conv->getAddOnName();
 	$logger->log(array(
-		"addon_name" => trim($addOnName['name'] . " " . $addOnName['version'])
+		"addon_name" => trim($addOnName['name'] . " " . $addOnName['version']),
+		"duration" => $duration,
 	));
 	
 	
