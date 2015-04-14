@@ -183,7 +183,7 @@ foreach ($checkboxes as $chbox) {
 </div>
 
 <div class="footer-text">
-	<div class="update">Last update of converter engine: 2015-04-13</div>
+	<div class="update">Last update of converter engine: 2015-04-14</div>
 	<div class="disclaimer">Disclaimer: This service is provided as-is, free of charge, and without any warranty whatsoever. The author and provider of this service shall not be responsible for any damages caused directly or indirectly by using this web application.</div>
 </div>
 

@@ -1559,6 +1559,23 @@ class AddOnConverter {
 			'$1GetBoolPref$2',
 			$contents);
 
+		// gBrowser.getTabForBrowser(browser) ->
+		// _getTabForContentWindow(browser.contentWindow)
+		// example: https://addons.mozilla.org/en-US/firefox/addon/noise-control/
+		$contents = preg_replace(
+			'#gBrowser\.getTabForBrowser\s*\(([^)]+)\)#',
+			'gBrowser._getTabForContentWindow($1.contentWindow)',
+			$contents);
+
+		
+		// getAnonymousElementByAttribute(xulTab, "class", "tab-content") ->
+		// getAnonymousElementByAttribute(xulTab, "class", "tab-middle box-inherit")
+		// example: https://addons.mozilla.org/en-US/firefox/addon/noise-control/
+		$contents = preg_replace(
+			'#(getAnonymousElementByAttribute\s*\([^)]+?["\'])tab-content(["\'])#',
+			'$1tab-middle box-inherit$2',
+			$contents);
+
 		
 		// potentially in https://addons.mozilla.org/en-US/firefox/addon/toomanytabs-saves-your-memory/
 		// but broken addon, anyway
