@@ -1546,9 +1546,18 @@ class AddOnConverter {
 		// getBoolPref( -> GetBoolPref(
 		// window.getBoolPref( -> window.GetBoolPref(
 		// example: https://addons.mozilla.org/en-US/firefox/addon/liveclick/
-		$contents = preg_replace(
-			'#((?:[ \t=!&(\[\{:,?|]|\bwindow[ \t]*\.[ \t]*))getBoolPref([ \t]*\()#',
-			'$1GetBoolPref$2',
+		$contents = preg_replace_callback(
+			'#((function\s*)?[ \t=!&(\[\{:,?|]|\bwindow[ \t]*\.[ \t]*)getBoolPref([ \t]*\()#',
+			function($matches) {
+				if ($matches[2] !== "") {
+					// don't replace if this is function definition
+					return $matches[0];
+				}
+				
+				return $matches[1]
+					. 'GetBoolPref'
+					. $matches[3];
+			},
 			$contents);
 
 		// gBrowser.getTabForBrowser(browser) ->
