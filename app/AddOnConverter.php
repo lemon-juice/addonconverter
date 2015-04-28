@@ -85,6 +85,7 @@ class AddOnConverter {
 			'chrome://browser/locale/places/places.dtd' => 'chrome://communicator/locale/bookmarks/places.dtd',
 			'chrome://browser/content/places/bookmarkProperties.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
 			'chrome://browser/content/places/bookmarkProperties2.xul' => 'chrome://communicator/content/bookmarks/bm-props.xul',
+			'chrome://browser/skin/livemark-folder.png' => 'chrome://communicator/skin/bookmarks/livemark-folder.png',
 			'chrome://browser/content/' => 'chrome://navigator/content/',
 			'resource:///modules/sessionstore/SessionStore.jsm' => 'resource:///components/nsSessionStore.js',
 			//'chrome://browser/locale/preferences/cookies.dtd' => 'chrome://communicator/locale/permissions/cookieViewer.dtd',
