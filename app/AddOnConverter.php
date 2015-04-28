@@ -1579,6 +1579,22 @@ class AddOnConverter {
 			'$1tab-middle box-inherit$2',
 			$contents);
 
+		// typeof gCurrentFilterList != "undefined" ->
+		// typeof gFilterTreeView != "undefined"
+		// 
+		// gCurrentFilterList ->
+		// gFilterTreeView.filterList
+		// example: https://addons.mozilla.org/en-us/thunderbird/addon/tb-import-export-wind-li-port/
+		$contents = preg_replace(
+			'/(typeof\s+)gCurrentFilterList(\s*[!=]+\s*["\']undefined["\'])/',
+			'$1gFilterTreeView$2',
+			$contents);
+
+		$contents = preg_replace(
+			'/\bgCurrentFilterList\b/',
+			'gFilterTreeView.filterList',
+			$contents);
+
 		
 		// potentially in https://addons.mozilla.org/en-US/firefox/addon/toomanytabs-saves-your-memory/
 		// but broken addon, anyway
