@@ -8,6 +8,7 @@ emptyXPICache();
 $form = array(
 	'url' => '',
 	'maxVersion' => '2.*',
+	'appendName' => '[converted]',
 );
 
 if (isset($_GET['url']) && preg_match('#^https?://#', $_GET['url'])) {
@@ -15,6 +16,9 @@ if (isset($_GET['url']) && preg_match('#^https?://#', $_GET['url'])) {
 }
 if (!empty($_GET['maxVersion']) && preg_match('/^[0-9.*]{1,8}$/', $_GET['maxVersion'])) {
 	$form['maxVersion'] = $_GET['maxVersion'];
+}
+if (isset($_GET['appendName'])) {
+	$form['appendName'] = $_GET['appendName'];
 }
 
 // checkboxes
@@ -82,10 +86,18 @@ foreach ($checkboxes as $chbox) {
 		<h2>Options:</h2>
 		
 		<div>
-			<label><input type="checkbox" checked="" disabled="" /> add SeaMonkey to install.rdf</label>
+			Add SeaMonkey to install.rdf and set maxVersion to: <input type="text" name="maxVersion" value="<?=htmlspecialchars($form['maxVersion']) ?>" size="7" maxlength="7" />
 		</div>
+		
 		<div>
-			set maxVersion to: <input type="text" name="maxVersion" value="<?=htmlspecialchars($form['maxVersion']) ?>" size="7" maxlength="7" />
+			Append
+			<input type="text" name="appendName" value="<?=htmlspecialchars($form['appendName']) ?>" size="15" maxlength="30">
+			to the name of converted extension
+			<span class="help">
+				<span>?</span>
+				<span>The name of the converted extension will have this additional string appended. This will make it easy for you to distinguish which of your installed extensions have been converted. If you want the original name to remain intact then empty this field.
+				</span>
+			</span>
 		</div>
 		
 		<div>
@@ -183,7 +195,7 @@ foreach ($checkboxes as $chbox) {
 </div>
 
 <div class="footer-text">
-	<div class="update">Last update of converter engine: 2015-04-28</div>
+	<div class="update">Last update of converter engine: 2015-05-01</div>
 	<div class="disclaimer">Disclaimer: This service is provided as-is, free of charge, and without any warranty whatsoever. The author and provider of this service shall not be responsible for any damages caused directly or indirectly by using this web application.</div>
 </div>
 

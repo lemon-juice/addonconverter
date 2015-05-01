@@ -3,7 +3,8 @@ class AddOnConverter {
 	
 	// config:
 	public $maxVersionStr = '2.*';
-	
+	public $appendName;
+
 	/**
 	 * List of file extensions, in which to replace chrome URL's
 	 */
@@ -67,7 +68,7 @@ class AddOnConverter {
 			throw new Exception("Cannot parse install.rdf as XML");
 		}
 		
-		$this->addonName = $this->getAddonNameFromInstallRds($this->installRdf);
+		$this->addonName = $this->getAddonNameFromInstallRdf($this->installRdf);
 		
 		$this->chromeURLReplacements = array(
 			'chrome://browser/content/browser.xul' => 'chrome://navigator/content/navigator.xul',
@@ -116,7 +117,7 @@ class AddOnConverter {
 	public function convert($destDir) {
 		$filesConverted = 0;
 		
-		$newInstallRdf = $this->convertInstallRdf($this->installRdf, $this->maxVersionStr);
+		$newInstallRdf = $this->convertInstallRdf($this->installRdf, $this->maxVersionStr, $this->appendName);
 		
 		if ($newInstallRdf) {
 			// write modified file
@@ -171,11 +172,12 @@ class AddOnConverter {
 	/**
 	 * @param DOMDocument $installRdf
 	 * @param string $maxVersionStr
+	 * @param string $appendName String to append to the name of add-on
 	 * @return DOMDocument|null NULL if document was not changed
 	 */
-	public function convertInstallRdf(DOMDocument $installRdf, $maxVersionStr) {
+	public function convertInstallRdf(DOMDocument $installRdf, $maxVersionStr, $appendName) {
 		
-		$allDescriptions = $this->getDescriptionSFromInstallRdf($installRdf);
+		$allDescriptions = $this->getDescriptionsFromInstallRdf($installRdf);
 		$urnDescription = $allDescriptions['urnDescription'];
 		$Descriptions = $allDescriptions['Descriptions'];
 
@@ -193,7 +195,7 @@ class AddOnConverter {
 				// change maxVersion
 				$SM_exists = true;
 				
-				if ($maxVersionNode->nodeValue != $maxVersionStr) {
+				if ($maxVersionStr !== '' && $maxVersionNode->nodeValue != $maxVersionStr) {
 					$this->log("install.rdf", "Changed <em>maxVersion</em> from '$maxVersionNode->nodeValue' to '$maxVersionStr'");
 
 					$maxVersionNode->nodeValue = $maxVersionStr;
@@ -208,6 +210,10 @@ class AddOnConverter {
 		}
 		
 		if (!$SM_exists) {
+			// add comment about SeaMonkey
+			$comment = $installRdf->createComment(" SeaMonkey (added by Add-on Converter) ");
+			$urnDescription->appendChild($comment);
+			
 			// add application
 			$tApp = $this->installRdf->createElementNS("http://www.mozilla.org/2004/em-rdf#", "targetApplication");
 			
@@ -227,9 +233,93 @@ class AddOnConverter {
 			$docChanged = true;
 		}
 		
+		if ((string) $appendName !== "") {
+			$nameChanged = $this->appendNameToAddon($installRdf, $appendName);
+			
+			if ($nameChanged) {
+				$docChanged = true;
+				$this->log("install.rdf", "Changed extension name");
+			}
+		}
+		
 		return $docChanged ? $installRdf : null;
 	}
 	
+	/**
+	 * Append name to addon in install.rdf
+	 * @param DOMDocument $installRdf install.rdf document to modify
+	 * @param string $appendName
+	 * @return bool true if name has changed
+	 */
+	protected function appendNameToAddon(DOMDocument $installRdf, $appendName) {
+		$descriptions = $this->getDescriptionsFromInstallRdf($installRdf);
+		
+		if (empty($descriptions['urnDescription'])) {
+			return null;
+		}
+		
+		$changed = $this->addNameToDescriptionFragment($descriptions['urnDescription'], $appendName);
+		
+		// change localized names
+		$localizedElems = $descriptions['urnDescription']->getElementsByTagName("localized");
+		
+		// iterate through <localized> elements
+		foreach ($localizedElems as $localized) {
+			$description = $localized->getElementsByTagName("Description")->item(0);
+			
+			if ($description) {
+				$locChanged = $this->addNameToDescriptionFragment($description, $appendName);
+				
+				if ($locChanged) {
+					$changed = true;
+				}
+			}
+		}
+		
+		return $changed;
+	}
+	
+	/**
+	 * @param DOMElement $description <Description> element in install.rdf
+	 * @return bool true if name has changed
+	 */
+	private function addNameToDescriptionFragment(DOMElement $description, $appendName) {
+		// try name attribute on <Description>
+		$nameAttr = $description->attributes->getNamedItem('name');
+		
+		if ($nameAttr) {
+			$oldName = $nameAttr->nodeValue;
+			$nameAttr->nodeValue = $this->createNewAddonName($nameAttr->nodeValue, $appendName);
+			return $oldName !== $nameAttr->nodeValue;
+			
+		} else {
+			// look in child elements
+			foreach ($description->getElementsByTagName("name") as $name) {
+				$oldName = $name->nodeValue;
+				$name->nodeValue = $this->createNewAddonName($name->nodeValue, $appendName);
+				return $oldName !== $name->nodeValue;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param string $oldName
+	 * @param string $appendName
+	 * @return string New name
+	 */
+	private function createNewAddonName($oldName, $appendName) {
+		$appendName = " " . trim($appendName);
+		
+		if (substr($oldName, -strlen($appendName)) !== $appendName) {
+			// we make sure $appendName is not already appended
+			return $oldName . $appendName;
+		}
+		
+		return $oldName;
+	}
+
 	/**
 	 * Get the main description from install.rdf:
 	 * <Description about="urn:mozilla:install-manifest">
@@ -237,7 +327,7 @@ class AddOnConverter {
 	 * @return array urlDescription: DOMNode|null The urn Description node.
 	 *   Descriptions: DOMNodeList All Description nodes.
 	 */
-	protected function getDescriptionSFromInstallRdf(DOMDocument $installRdf) {
+	protected function getDescriptionsFromInstallRdf(DOMDocument $installRdf) {
 		$Descriptions = $installRdf->documentElement->getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "Description");
 		
 		$urnDescription = null;
@@ -264,13 +354,13 @@ class AddOnConverter {
 	 * @param DOMDocument $installRdf
 	 * @return array [name,version]
 	 */
-	protected function getAddonNameFromInstallRds(DOMDocument $installRdf) {
+	protected function getAddonNameFromInstallRdf(DOMDocument $installRdf) {
 		$out = array(
 			'name' => null,
 			'version' => null,
 		);
 		
-		$descriptions = $this->getDescriptionSFromInstallRdf($installRdf);
+		$descriptions = $this->getDescriptionsFromInstallRdf($installRdf);
 		
 		if (empty($descriptions['urnDescription'])) {
 			return $out;
@@ -314,7 +404,7 @@ class AddOnConverter {
 	 * @return bool
 	 */
 	protected function isBootstrapped(DOMDocument $installRdf) {
-		$allDescriptions = $this->getDescriptionSFromInstallRdf($installRdf);
+		$allDescriptions = $this->getDescriptionsFromInstallRdf($installRdf);
 		$urnDescription = $allDescriptions['urnDescription'];
 
 		if (!$urnDescription) {
