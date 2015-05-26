@@ -91,7 +91,7 @@ foreach ($checkboxes as $chbox) {
 		
 		<div>
 			Append
-			<input type="text" name="appendName" value="<?=htmlspecialchars($form['appendName']) ?>" size="15" maxlength="30">
+			<input type="text" name="appendName" value="<?=htmlspecialchars($form['appendName']) ?>" size="15" maxlength="500">
 			to the name of converted extension
 			<span class="help">
 				<span>?</span>

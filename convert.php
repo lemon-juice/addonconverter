@@ -76,7 +76,7 @@ try {
 	
 	// pass options from form to converter object
 	$conv->maxVersionStr = (string) substr(trim(@$_POST['maxVersion']), 0, 10);
-	$conv->appendName = (string) substr(trim(@$_POST['appendName']), 0, 150);
+	$conv->appendName = (string) substr(trim(@$_POST['appendName']), 0, 500);
 	$conv->convertChromeUrls = !empty($_POST['convertChromeUrls']);
 	$conv->convertChromeURLsInExt = array();
 	
