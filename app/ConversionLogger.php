@@ -18,6 +18,7 @@ class ConversionLogger {
 		
 		$this->db = new PDO('sqlite:logs/logs.sqlite');
 		$this->db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		$this->db->query("PRAGMA synchronous = OFF");
 	}
 	
 	public function log(array $data) {
