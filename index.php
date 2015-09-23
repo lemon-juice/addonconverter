@@ -49,7 +49,7 @@ foreach ($checkboxes as $chbox) {
 
 	<h2>About this converter</h2>
 	<div class="info">
-		<p>The purpose of this tool is to make Firefox and Thunderbird extensions compatible with <a href="http://www.seamonkey-project.org/">SeaMonkey</a>. It will run a couple of automatic conversions based on <a href="https://developer.mozilla.org/en-US/Add-ons/SeaMonkey_2">most commonly known differences</a> between Firefox and SeaMonkey. There is no guarantee that every extension will work in SeaMonkey &mdash; it will usually install but how and if it will work depends on the code. The simpler the extension the more likelihood of succeess. To learn more about this tool read the discussion on <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">MozillaZine Forum</a>.</p>
+		<p>The purpose of this tool is to make Firefox and Thunderbird extensions compatible with <a href="http://www.seamonkey-project.org/">SeaMonkey</a>. It will run a couple of automatic conversions based on <a href="https://developer.mozilla.org/en-US/Add-ons/SeaMonkey_2">most commonly known differences</a> between Firefox and SeaMonkey. There is no guarantee that every extension will work in SeaMonkey &mdash; it will usually install but how and if it will work depends on the code. The simpler the extension the more likelihood of succeess &mdash; visit the <a href="http://addonconverter.fotokraina.com/compatibility/">list of compatible extensions</a> that have been tested. To learn more about this tool read the discussion on <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">MozillaZine Forum</a>.</p>
 		<p>For trying out an extension in most cases it is best to leave the default options unchanged. Sometimes, this tool can do too much so in case of problems you may try to play with the options &mdash; remember this tool is mostly dumb and except for updating install.rdf it does not parse nor interpret the source code &mdash; it only does some basic string replacements. In most cases this will work, but sometimes it can produce broken code and unusable add-on. However, after the conversion you will be able to see the diff of changed files &mdash; handy for the more experienced users.</p>
 		<p class="warning"><strong>Warning!</strong> While there are some non-SeaMonkey extensions that can be automatically made compatible with SeaMonkey there is no guarantee what will actually happen. If you are unsure, it is strongly suggested you test the modded extension in a separate profile first as it can behave unexpectedly. Such modifications are neither supported by Mozilla nor by add-on authors so remember you are doing this at your own risk!</p>
 	</div>
@@ -83,7 +83,7 @@ foreach ($checkboxes as $chbox) {
 	<? endif ?>
 	
 	<div class="group options" id="options"<? if ($form['url']): ?> style="display: none"<? endif ?>>
-		<h2>Options:</h2>
+		<h2>Advanced Options:</h2>
 		
 		<div>
 			Add SeaMonkey to install.rdf and set maxVersion to: <input type="text" name="maxVersion" value="<?=htmlspecialchars($form['maxVersion']) ?>" size="7" maxlength="7" />
@@ -172,10 +172,23 @@ foreach ($checkboxes as $chbox) {
 	
 	<div class="buttons">
 		<? if (!$form['url']): ?>
-			<input type="submit" value="» Convert" class="convert" />
+			<button type="submit" class="convert">» Convert</button>
 		<? else: ?>
-			<input type="submit" value="» Convert and Install" name="installButton" class="convert install" />
-			<input type="submit" value="» Convert and View Details" name="detailsButton" class="convert" />
+			<button type="submit" value="true" name="installButton" class="convert description install">
+				» Convert and Install
+				<div>
+					Convert and install immediately.
+					<br>Good option for extensions known to work.
+				</div>
+			</button>
+			&nbsp;
+			<button type="submit" value="true" name="detailsButton" class="convert description">
+				» Convert and View Details
+				<div>
+					Convert and view conversion results.
+					<br>Then install or download.
+				</div>
+			</button>
 		<? endif ?>
 	</div>
 	
@@ -187,10 +200,10 @@ foreach ($checkboxes as $chbox) {
 </form>
 
 
-<div class="bottom-info">
+<div class="info bottom-info">
 	<hr>
 	<h2>Feedback and Support</h2>
-	<p>There's no formal support for this tool but you are welcome to share your experience, discuss and ask questions in <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">this MozillaZine thread</a>. There you will also find information on which extensions work after automatic conversion and which don't.</p>
+	<p>There's no formal support for this tool but you are welcome to share your experience, discuss and ask questions in <a href="http://forums.mozillazine.org/viewtopic.php?f=40&amp;t=2834855">this MozillaZine thread</a>.</p>
 	<p>The source code of the converter is available on <a href="https://github.com/lemon-juice/addonconverter">GitHub</a>.</p>
 </div>
 

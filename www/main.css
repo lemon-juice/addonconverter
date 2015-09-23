@@ -21,24 +21,53 @@ a:visited {
 
 div.header {
 	text-align: center;
-	background-color: #d4e7fb;
-	padding: 10px 0;
-	border-bottom: 1px solid #222298;
-	margin-bottom: 30px;
+	background-color: #b1d8ff;
+	padding: 5px 0 0 0;
+	border-bottom: 1px solid #888;;
+	margin-bottom: 15px;
 }
 div.header h1 {
 	padding: 0;
 	margin: 0;
 	font-family: verdana;
-	font-size: 20pt;
+	font-size: 19pt;
+	text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
 }
 div.header h1 a {
-	color: #000089;
+	color: black;
 	text-decoration: none;
 }
 div.header h1 img {
 	vertical-align: -50%;
 }
+div.header div.nav {
+	padding: 8px 0;
+	margin-top: 4px;
+}
+div.header div.nav ul {
+	display: flex;
+	justify-content: center;
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+div.header div.nav ul li a {
+	display: inline-block;
+	background: #edf2f2;
+	padding: 0.5em 1.5em;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid white;
+	border-left: 1px solid white;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 10pt;
+	color: navy;
+}
+div.header div.nav ul li a:hover {
+	background: #e0e9e9;
+}
+
 div.error {
 	color: red;
 	margin: 0 0 1em 0;
@@ -47,7 +76,6 @@ div.error {
 #main {
 	background-color: #e4ecec;
 	border: 1px solid #d2d6d6;
-	border-radius: 7px;
 	padding: 15px 20px;
 	width: 55em;
 	margin: 0 auto 20px auto;
@@ -79,7 +107,6 @@ form div {
 form div.group {
 	background-color: #bfe3bf;
 	border: 1px solid #aaa;
-	border-radius: 7px;
 	padding: 0.5em 0.8em;
 }
 form div.group.options {
@@ -106,9 +133,13 @@ form div.checkboxes label {
 form div.checkboxes label:first-child {
 	margin-left: 0;
 }
-form input[type=submit] {
+form input[type=submit],
+form button {
 	font-size: 110%;
 	font-weight: bold;
+	letter-spacing: 1px;
+	text-align: left;
+	padding-bottom: 0;
 }
 
 div.info {
@@ -117,9 +148,9 @@ div.info {
 }
 div.info .warning {
 	color: #dd0000;
-	background-color: #ffffcc;
+	background-color: #ffffee;
 	padding: 3px 6px;
-	border: 1px dotted black;	
+	border: 1px solid #888;
 }
 
 ol > li {
@@ -129,7 +160,6 @@ ol > li {
 div.warning {
 	background: #ffff99;
 	border: 1px solid red;
-	border-radius: 4px;
 	padding: 1em;
 	margin: 0.5em 0;
 	color: black;
@@ -142,7 +172,7 @@ div.adv-options {
 
 div.buttons {
 }
-input.convert {
+button.convert {
 	background: #0066cc;
 	color: white;
 	border: 1px solid black;
@@ -150,13 +180,23 @@ input.convert {
 	padding: 0.5em 0.7em;
 	cursor: pointer;
 }
-input.convert.install {
+button.convert.install {
 	background: #279f00;
 }
-input.convert:hover {
+button.convert.description {
+	padding-bottom: 0.2em;
+}
+button.convert.description div {
+	font-size: 8pt;
+	font-weight: normal;
+	letter-spacing: normal;
+	padding: 0.3em 0 0 1.5em;
+	opacity: 0.9;
+}
+button.convert:hover {
 	opacity: 0.8;
 }
-input.convert:active {
+button.convert:active {
 	box-shadow: 0px 0px 3px 3px rgba(255, 183, 40, 1);
 }
 div.buttons input:nth-child(2) {
@@ -211,7 +251,6 @@ div.diff {
 	border: 1px solid #999;
 	background: #f6f6f6;
 	padding: 10px;
-	border-radius: 5px;
 }
 div.diff ins {color:black;background:#b4ffb4;text-decoration:none}
 div.diff del {color:red;background:#fdd;text-decoration:none}
