@@ -32,12 +32,17 @@ $checkboxes = array(
 	'jsShortcuts',
 );
 
+$onlyMaxVersion = empty($_GET['onlyMaxVersion']) ? '' : $_GET['onlyMaxVersion'];
+
 foreach ($checkboxes as $chbox) {
-	$form[$chbox] = (isset($_GET[$chbox]) && $_GET[$chbox] == 'off')
+	$form[$chbox] = ((isset($_GET[$chbox]) && $_GET[$chbox] == 'off') || $onlyMaxVersion)
 		? false
 		: true;
 }
 
+if (preg_match('/^\d[\d.*]*$/', $onlyMaxVersion)) {
+	$form['maxVersion'] = $onlyMaxVersion;
+}
 ?>
 <? include "templates/header.php" ?>
 

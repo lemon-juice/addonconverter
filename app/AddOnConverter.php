@@ -202,9 +202,17 @@ class AddOnConverter {
 					$docChanged = true;
 				}
 				
-				// warning about SeaMonkey already supported
-				$this->logWarning("This add-on appears to already support SeaMonkey. In most cases it is recommended you do not use the converted version but install the original add-on. If the author has included SeaMonkey support this converter may do more harm than good &mdash; however, sometimes the converter can improve an incomplete SeaMonkey support.<br><br>Remember that on the <a href='https://addons.mozilla.org/en-US/seamonkey/'>AMO site</a> you can still install (sometimes) add-ons marked as <em>Not available for SeaMonkey x.xx</em> by clicking on the greyed-out button and pressing <em>Install Anyway</em>. If the install button is greyed-out it usually means the add-on has not been tested with the current version of SeaMonkey but is likely to work regardless.");
-				
+				if ($this->convertManifest
+					|| $this->convertChromeUrls
+					|| $this->convertPageInfoChrome
+					|| $this->xulIds
+					|| $this->jsShortcuts
+					|| $this->jsKeywords
+					|| $this->replaceEntities) {
+					
+					// warning about SeaMonkey already supported
+					$this->logWarning("This add-on appears to already support SeaMonkey. In most cases it is recommended you do not use the converted version but install the original add-on. If the author has included SeaMonkey support this converter may do more harm than good &mdash; however, sometimes the converter can improve an incomplete SeaMonkey support.<br><br>Remember that on the <a href='https://addons.mozilla.org/en-US/seamonkey/'>AMO site</a> you can still install (sometimes) add-ons marked as <em>Not available for SeaMonkey x.xx</em> by clicking on the greyed-out button and pressing <em>Install Anyway</em>. If the install button is greyed-out it usually means the add-on has not been tested with the current version of SeaMonkey but is likely to work regardless.");
+				}
 				break;
 			}
 		}
