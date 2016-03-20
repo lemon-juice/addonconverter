@@ -32,7 +32,10 @@ class AddOnConverter {
 	 */
 	protected $installRdf;
 	
-	protected $addonName = array();
+	/**
+	 * Basic info from install.rdf, like name, version, type
+	 */
+	protected $addonInfo = array();
 
 	const SEAMONKEY_ID = '{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}';
 	const FIREFOX_ID = '{ec8030f7-c20a-464f-9b0e-13a3a9e97384}';
@@ -68,7 +71,7 @@ class AddOnConverter {
 			throw new Exception("Cannot parse install.rdf as XML");
 		}
 		
-		$this->addonName = $this->getAddonNameFromInstallRdf($this->installRdf);
+		$this->addonInfo = $this->getAddonNameFromInstallRdf($this->installRdf);
 		
 		$this->chromeURLReplacements = array(
 			'chrome://browser/content/browser.xul' => 'chrome://navigator/content/navigator.xul',
@@ -103,10 +106,10 @@ class AddOnConverter {
 	}
 	
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function getAddOnName() {
-		return $this->addonName;
+	public function getAddOnInfo() {
+		return $this->addonInfo;
 	}
 	
 	/**
@@ -116,6 +119,10 @@ class AddOnConverter {
 	 */
 	public function convert($destDir) {
 		$filesConverted = 0;
+		
+		if ($this->addonInfo['type'] == 8) {
+			$this->logWarning("You are converting a language pack &mdash; these Firefor and Thunderbird add-ons most probably will not work properly in SeaMonkey because of different user interface and <strong>can sometimes make your SeaMonkey unusable</strong>! Even if you are only increasing <em>maxVersion</em> number of a SeaMonkey language pack it may not be safe because translations are targeted at specific application versions.<br><br>If you really want to experiment with this add-on at least try it first in a separate profile.");
+		}
 		
 		$newInstallRdf = $this->convertInstallRdf($this->installRdf, $this->maxVersionStr, $this->appendName);
 		
@@ -175,7 +182,7 @@ class AddOnConverter {
 	 * @param string $appendName String to append to the name of add-on
 	 * @return DOMDocument|null NULL if document was not changed
 	 */
-	public function convertInstallRdf(DOMDocument $installRdf, $maxVersionStr, $appendName) {
+	private function convertInstallRdf(DOMDocument $installRdf, $maxVersionStr, $appendName) {
 		
 		$allDescriptions = $this->getDescriptionsFromInstallRdf($installRdf);
 		$urnDescription = $allDescriptions['urnDescription'];
@@ -366,6 +373,7 @@ class AddOnConverter {
 		$out = array(
 			'name' => null,
 			'version' => null,
+			'type' => null,
 		);
 		
 		$descriptions = $this->getDescriptionsFromInstallRdf($installRdf);
@@ -398,6 +406,20 @@ class AddOnConverter {
 			// look in child elements
 			foreach ($descriptions['urnDescription']->getElementsByTagName("version") as $version) {
 				$out['version'] = $version->nodeValue;
+				break;
+			}
+		}
+		
+		// find type
+		$typeAttr = $descriptions['urnDescription']->attributes->getNamedItem('type');
+		
+		if ($typeAttr) {
+			$out['type'] = $typeAttr->nodeValue;
+			
+		} else {
+			// look in child elements
+			foreach ($descriptions['urnDescription']->getElementsByTagName("type") as $type) {
+				$out['type'] = $type->nodeValue;
 				break;
 			}
 		}

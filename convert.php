@@ -102,9 +102,9 @@ try {
 	
 	unlink($tmpFile);
 	
-	$addOnName = $conv->getAddOnName();
+	$addOnInfo = $conv->getAddOnInfo();
 	$logger->log(array(
-		"addon_name" => trim($addOnName['name'] . " " . $addOnName['version']),
+		"addon_name" => trim($addOnInfo['name'] . " " . $addOnInfo['version']),
 		"duration" => $duration,
 	));
 	
@@ -116,8 +116,8 @@ try {
 }
 
 
-if (!empty($_POST['installButton'])) {
-	// install directly!
+if (!empty($_POST['installButton']) && $addOnInfo['type'] != 8) {
+	// install directly but not for language packs (type=8)
 	header("HTTP/1.1 303 See Other");
 	header("Location: http://$_SERVER[HTTP_HOST]/install.php?file=" . urlencode($destFile));
 	exit;
@@ -126,8 +126,8 @@ if (!empty($_POST['installButton'])) {
 
 <? include "templates/header.php" ?>
 <h1 class="addon-name">
-	<?=  htmlspecialchars($addOnName['name']) ?>
-	<span class="version"><?=  htmlspecialchars($addOnName['version']) ?></span>
+	<?=  htmlspecialchars($addOnInfo['name']) ?>
+	<span class="version"><?=  htmlspecialchars($addOnInfo['version']) ?></span>
 </h1>
 
 <h2>Conversion Results (click on file names to see changes):</h2>
